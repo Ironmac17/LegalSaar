@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+dotenv.config();
 
 const connectDB = require("./config/db");
 const errorMiddleware = require("./middleware/errorMiddleware");
@@ -11,8 +12,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const officeRoutes = require("./routes/officeRoutes");
 const knowledgeRoutes = require("./routes/knowledgeRoutes");
 const solutionRoutes = require("./routes/solutionRoutes");
-
-dotenv.config();
+const documentRoutes = require("./routes/documentRoutes");
+const clauseRoutes = require("./routes/clauseRoutes");
 
 const app = express();
 
@@ -31,7 +32,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/offices", officeRoutes);
 app.use("/api/knowledge", knowledgeRoutes);
 app.use("/api/solutions", solutionRoutes);
-
+app.use("/api/documents", documentRoutes);
+app.use("/api/clauses", clauseRoutes);
 
 
 
