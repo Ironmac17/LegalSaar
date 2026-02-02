@@ -49,7 +49,7 @@ server/processed/
 server/ml/models/
 server/ml/checkpoints/
 server/ml/vector_db/
-
+server/ocr-data
 # =========================
 # Test & coverage
 # =========================
