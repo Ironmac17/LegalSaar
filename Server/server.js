@@ -9,6 +9,8 @@ const errorMiddleware = require("./middleware/errorMiddleware");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const officeRoutes = require("./routes/officeRoutes");
+const knowledgeRoutes = require("./routes/knowledgeRoutes");
+const solutionRoutes = require("./routes/solutionRoutes");
 
 dotenv.config();
 
@@ -27,6 +29,10 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/offices", officeRoutes);
+app.use("/api/knowledge", knowledgeRoutes);
+app.use("/api/solutions", solutionRoutes);
+
+
 
 
 // Health check
