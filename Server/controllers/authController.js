@@ -9,10 +9,9 @@ const sendOtpController = async (req, res, next) => {
     if (!phone) {
       return res.status(400).json({ message: "Phone number required" });
     }
-
     sendOTP(phone);
-
     res.json({ message: "OTP sent successfully" });
+    
   } catch (error) {
     next(error);
   }

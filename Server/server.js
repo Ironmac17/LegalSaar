@@ -4,8 +4,10 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRoutes");
 const errorMiddleware = require("./middleware/errorMiddleware");
+
+const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 dotenv.config();
 
@@ -22,6 +24,7 @@ app.use(morgan("dev"));
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health check
 app.get("/", (req, res) => {

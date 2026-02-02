@@ -4,20 +4,22 @@ const userSchema = new mongoose.Schema(
   {
     phone: {
       type: String,
-      unique: true,
-      sparse: true
+      sparse: true,
+      unique: true
     },
     email: {
       type: String,
+      sparse: true,
       unique: true,
-      sparse: true
+      lowercase: true,
+      trim: true
     },
     password: {
       type: String
     },
     role: {
       type: String,
-      enum: ["citizen", "admin"],
+      enum: ["citizen", "admin", "super_admin"],
       default: "citizen"
     },
     language: {
@@ -27,6 +29,9 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    lastLoginAt: {
+      type: Date
     }
   },
   { timestamps: true }
