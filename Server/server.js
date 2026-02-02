@@ -8,6 +8,7 @@ const errorMiddleware = require("./middleware/errorMiddleware");
 
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const officeRoutes = require("./routes/officeRoutes");
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ app.use(morgan("dev"));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/offices", officeRoutes);
+
 
 // Health check
 app.get("/", (req, res) => {
