@@ -12,7 +12,6 @@ router.get(
       const clauses = await Clause.find({
         document: req.params.documentId
       }).populate("linkedKnowledge");
-
       res.json(clauses);
     } catch (error) {
       next(error);

@@ -14,6 +14,8 @@ const knowledgeRoutes = require("./routes/knowledgeRoutes");
 const solutionRoutes = require("./routes/solutionRoutes");
 const documentRoutes = require("./routes/documentRoutes");
 const clauseRoutes = require("./routes/clauseRoutes");
+const clauseExplanationRoutes = require("./routes/clauseExplanationRoutes");
+const questionRoutes = require("./routes/questionRoutes");
 
 const app = express();
 
@@ -34,7 +36,8 @@ app.use("/api/knowledge", knowledgeRoutes);
 app.use("/api/solutions", solutionRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/clauses", clauseRoutes);
-
+app.use("/api/clause-explanations", clauseExplanationRoutes);
+app.use("/api/questions", questionRoutes);
 
 
 // Health check
