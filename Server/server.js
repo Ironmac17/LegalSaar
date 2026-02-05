@@ -16,6 +16,8 @@ const documentRoutes = require("./routes/documentRoutes");
 const clauseRoutes = require("./routes/clauseRoutes");
 const clauseExplanationRoutes = require("./routes/clauseExplanationRoutes");
 const questionRoutes = require("./routes/questionRoutes");
+const speechRoutes = require("./routes/speechRoutes");
+const voiceAskRoutes = require("./routes/voiceAskRoutes");
 
 const app = express();
 
@@ -38,7 +40,8 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/clauses", clauseRoutes);
 app.use("/api/clause-explanations", clauseExplanationRoutes);
 app.use("/api/questions", questionRoutes);
-
+app.use("/api/speech", speechRoutes);
+app.use("/api/voice", voiceAskRoutes);
 
 // Health check
 app.get("/", (req, res) => {
