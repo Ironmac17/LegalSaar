@@ -2,27 +2,68 @@ import { useState, useContext } from "react";
 import api from "../../api/api";
 import VoiceRecorder from "../../components/VoiceRecorder";
 import LanguageSelector from "../../components/LanguageSelector";
+import ConversationMode from "../../components/ConversationMode";
+import ChatWindow from "../../components/ChatWindow";
+import ChatInput from "../../components/ChatInput";
 import { AuthContext } from "../../auth/AuthContext";
 
 export default function Assistant() {
   const { language } = useContext(AuthContext);
 
-  const [question, setQuestion] = useState("");
-  const [result, setResult] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [file, setFile] = useState(null);
 
-  const askText = async () => {
-    const res = await api.post("/questions/ask", {
-      question
+  /* ---------- TEXT QUESTION ---------- */
+  const askText = async (text) => {
+    if (!text.trim()) return;
+
+    // add user bubble
+    setMessages((prev) => [...prev, { role: "user", text }]);
+
+    const res = await api.post(`/questions/ask?lang=${language}`, {
+      question: text
     });
-    setResult(res.data);
+
+    // assistant bubble
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", text: res.data.explanation }
+    ]);
+
+    if (res.data.audio) {
+      const audio = new Audio(res.data.audio);
+      audio.play();
+    }
   };
 
+  /* ---------- VOICE RESULT ---------- */
+  const handleVoiceResult = (data) => {
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", text: data.explanation }
+    ]);
+
+    if (data.audio) {
+      const audio = new Audio(data.audio);
+      audio.play();
+    }
+  };
+
+  /* ---------- DOCUMENT UPLOAD ---------- */
   const uploadDocument = async () => {
+    if (!file) return;
+
     const form = new FormData();
     form.append("file", file);
-    const res = await api.post("/documents/upload", form);
-    alert("Document uploaded");
+
+    await api.post("/documents/upload", form);
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", text: "Document uploaded successfully." }
+    ]);
+
+    setFile(null);
   };
 
   return (
@@ -30,33 +71,31 @@ export default function Assistant() {
       <LanguageSelector />
 
       <h1 className="text-2xl font-bold mt-4 mb-4">
-        Legal Assistant
+        AI Legal Assistant
       </h1>
 
-      {/* TEXT QUESTION */}
-      <div className="mb-6">
-        <input
-          className="border w-full p-3"
-          placeholder="Ask your legal question..."
-          value={question}
-          onChange={(e)=>setQuestion(e.target.value)}
-        />
-        <button
-          onClick={askText}
-          className="mt-3 bg-blue-600 text-white px-4 py-2"
-        >
-          Ask
-        </button>
+      {/* CHAT WINDOW */}
+      <ChatWindow messages={messages} />
+
+      {/* TEXT INPUT */}
+      <ChatInput onSend={askText} />
+
+      {/* VOICE INPUT */}
+      <div className="mt-4">
+        <VoiceRecorder language={language} onResult={handleVoiceResult} />
       </div>
 
-      {/* VOICE QUESTION */}
-      <div className="mb-6">
-        <VoiceRecorder language={language} onResult={setResult}/>
+      {/* CONTINUOUS CONVERSATION MODE */}
+      <div className="mt-4">
+        <ConversationMode />
       </div>
 
       {/* DOCUMENT UPLOAD */}
-      <div className="mb-6">
-        <input type="file" onChange={(e)=>setFile(e.target.files[0])}/>
+      <div className="mt-6">
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files[0])}
+        />
         <button
           onClick={uploadDocument}
           className="ml-3 bg-green-600 text-white px-4 py-2"
@@ -64,14 +103,6 @@ export default function Assistant() {
           Upload Document
         </button>
       </div>
-
-      {/* RESULT */}
-      {result && (
-        <div className="mt-8 border p-4 rounded">
-          <p className="mb-3">{result.explanation}</p>
-          {result.audio && <audio controls src={result.audio}></audio>}
-        </div>
-      )}
     </div>
   );
 }
