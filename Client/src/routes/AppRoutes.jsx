@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/citizen/Home";
 import AskQuestion from "../pages/citizen/AskQuestion";
 import UploadDocument from "../pages/citizen/UploadDocument";
@@ -12,18 +14,20 @@ import Assistant from "../pages/citizen/Assistant";
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/ask" element={<AskQuestion />} />
-        <Route path="/upload" element={<UploadDocument />} />
-        <Route path="/assistant" element={<Assistant />} />
-        
-        
-        <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/knowledge" element={<KnowledgeBase />} />
-        <Route path="/admin/users" element={<Users />} />
-      </Routes>
+      <MainLayout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/ask" element={<AskQuestion />} />
+          <Route path="/upload" element={<UploadDocument />} />
+          <Route path="/assistant" element={<Assistant />} />
+          
+          
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/knowledge" element={<KnowledgeBase />} />
+          <Route path="/admin/users" element={<Users />} />
+        </Routes>
+      </MainLayout>
     </BrowserRouter>
   );
 }
