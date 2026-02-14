@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Login from "../pages/auth/login";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/citizen/Home";
 import AskQuestion from "../pages/citizen/AskQuestion";
@@ -16,6 +17,7 @@ export default function AppRoutes() {
     <BrowserRouter>
       <MainLayout>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route path="/ask" element={<AskQuestion />} />
           <Route path="/upload" element={<UploadDocument />} />
