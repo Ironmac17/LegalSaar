@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { FiSend } from "react-icons/fi";
 
-export default function ChatInput({ onSend }) {
+export default function ChatInput({
+  onSend,
+  placeholder = "Ask your legal question...",
+}) {
   const [text, setText] = useState("");
 
   const submit = () => {
@@ -9,19 +13,29 @@ export default function ChatInput({ onSend }) {
     setText("");
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      submit();
+    }
+  };
+
   return (
-    <div className="flex gap-2 mt-3">
-      <input
-        className="border p-2 flex-1"
+    <div className="flex gap-2 mt-4">
+      <textarea
+        className="flex-1 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Ask your legal question..."
+        onKeyPress={handleKeyPress}
+        placeholder={placeholder}
+        rows="2"
       />
       <button
         onClick={submit}
-        className="bg-blue-600 text-white px-4 py-2"
+        disabled={!text.trim()}
+        className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-semibold"
       >
-        Send
+        <FiSend size={20} />
       </button>
     </div>
   );

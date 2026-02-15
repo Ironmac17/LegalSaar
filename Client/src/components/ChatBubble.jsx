@@ -1,17 +1,38 @@
-export default function ChatBubble({ role, text }) {
+export default function ChatBubble({ role, text, timestamp }) {
   const isUser = role === "user";
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-3`}>
+    <div
+      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4 items-end gap-2`}
+    >
+      {!isUser && (
+        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-primary-600">
+          ⚖️
+        </div>
+      )}
       <div
-        className={`px-4 py-2 rounded-lg max-w-lg ${
+        className={`px-4 py-3 rounded-2xl max-w-md break-words ${
           isUser
-            ? "bg-blue-600 text-white"
-            : "bg-gray-200 text-black"
+            ? "bg-primary-600 text-white rounded-br-none shadow-md"
+            : "bg-gray-100 text-gray-900 rounded-bl-none shadow-sm"
         }`}
       >
-        {text}
+        <p className="leading-relaxed text-sm">{text}</p>
+        {timestamp && (
+          <p
+            className={`text-xs mt-2 ${
+              isUser ? "text-primary-100" : "text-gray-500"
+            }`}
+          >
+            {new Date(timestamp).toLocaleTimeString()}
+          </p>
+        )}
       </div>
+      {isUser && (
+        <div className="w-8 h-8 rounded-full bg-accent-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-accent-600">
+          👤
+        </div>
+      )}
     </div>
   );
 }

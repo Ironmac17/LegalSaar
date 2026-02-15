@@ -1,17 +1,113 @@
 import { useContext } from "react";
 import { AuthContext } from "../../auth/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { FiUser, FiMail, FiPhone, FiLogOut, FiEdit } from "react-icons/fi";
+import Button from "../../components/Button";
 
 export default function Profile() {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  if (!user) return <div className="p-8">Not logged in</div>;
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    navigate("/login");
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Please log in to view your profile</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8">
-      <h2 className="text-xl mb-4">My Profile</h2>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      <div className="max-w-2xl mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Profile</h1>
+          <p className="text-gray-600">Manage your account information</p>
+        </div>
 
-      <p><strong>Phone:</strong> {user.phone}</p>
-      <p><strong>Role:</strong> {user.role}</p>
+        {/* Profile Card */}
+        <div className="bg-white rounded-lg shadow-md p-8">
+          {/* Avatar */}
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-primary-600 to-accent-600 rounded-full mx-auto flex items-center justify-center text-white text-3xl mb-4">
+              👤
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {user.name || "Citizen"}
+            </h2>
+          </div>
+
+          {/* Information */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <FiPhone className="text-primary-600 flex-shrink-0" size={24} />
+              <div className="flex-grow">
+                <p className="text-gray-600 text-sm">Phone Number</p>
+                <p className="text-gray-900 font-semibold">
+                  {user.phone || "Not provided"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <FiMail className="text-primary-600 flex-shrink-0" size={24} />
+              <div className="flex-grow">
+                <p className="text-gray-600 text-sm">Email</p>
+                <p className="text-gray-900 font-semibold">
+                  {user.email || "Not provided"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <FiUser className="text-primary-600 flex-shrink-0" size={24} />
+              <div className="flex-grow">
+                <p className="text-gray-600 text-sm">Account Status</p>
+                <p className="text-gray-900 font-semibold text-success-600">
+                  Active
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="mt-8 pt-8 border-t border-gray-200 space-y-3">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <FiEdit size={20} />
+              Edit Profile
+            </Button>
+            <Button
+              variant="danger"
+              size="lg"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={handleLogout}
+            >
+              <FiLogOut size={20} />
+              Logout
+            </Button>
+          </div>
+        </div>
+
+        {/* Activity Card */}
+        <div className="mt-8 bg-white rounded-lg shadow-md p-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">
+            Recent Activity
+          </h3>
+          <div className="text-center text-gray-600">
+            <p>No recent activity</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
