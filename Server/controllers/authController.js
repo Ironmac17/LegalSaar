@@ -100,6 +100,35 @@ const verifyOtpController = async (req, res, next) => {
   }
 };
 
+const getCurrentUserController = async (req, res, next) => {
+  try {
+    // User is attached to request by authMiddleware
+    const user = await User.findById(req.user.id).select("-password -otp -otpExpiry");
+
+    if (!user) {
+      throw new AuthenticationError("User not found");
+    }
+
+    if (!user.isActive) {
+      throw new AuthenticationError("User account is deactivated");
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        phone: user.phone,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        language: user.language,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const adminLoginController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -156,4 +185,4 @@ const adminLoginController = async (req, res, next) => {
   }
 };
 
-module.exports = { sendOtpController, verifyOtpController, adminLoginController };
+module.exports = { sendOtpController, verifyOtpController, adminLoginController, getCurrentUserController };

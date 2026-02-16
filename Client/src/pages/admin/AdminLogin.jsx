@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { adminLogin } from "../../api/adminApi";
+import { AuthContext } from "../../auth/AuthContext";
 import { useToast } from "../../hooks/useToast";
 import { useNavigate, Link } from "react-router-dom";
 import { FiMail, FiLock, FiAlertCircle, FiArrowLeft } from "react-icons/fi";
@@ -12,6 +13,7 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { success, error: showError } = useToast();
+  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const submit = async () => {
@@ -24,8 +26,9 @@ export default function AdminLogin() {
     setLoading(true);
     setError("");
     try {
-      await adminLogin({ email, password });
-      localStorage.setItem("adminEmail", email);
+      const res = await adminLogin({ email, password });
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
       success("Admin login successful! Redirecting to dashboard...");
       setTimeout(() => navigate("/admin/dashboard"), 1000);
     } catch (err) {

@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const { hashPassword, comparePassword } = require("../services/passwordService");
 
 const adminLogin = async (req, res, next) => {
   try {
@@ -16,7 +15,8 @@ const adminLogin = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const isMatch = await comparePassword(password, admin.password);
+    // Use the comparePassword method from User model
+    const isMatch = await admin.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }

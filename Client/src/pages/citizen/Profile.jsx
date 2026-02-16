@@ -69,7 +69,7 @@ export default function Profile() {
               <FiUser className="text-primary-600 flex-shrink-0" size={24} />
               <div className="flex-grow">
                 <p className="text-gray-600 text-sm">Account Status</p>
-                <p className="text-gray-900 font-semibold text-success-600">
+                <p className="text-gray-900 font-semibold">
                   Active
                 </p>
               </div>
