@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { getKnowledge } from "../../api/adminApi";
+import { useToast } from "../../hooks/useToast";
 import { FiBook, FiPlus, FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
 
 export default function KnowledgeBase() {
+  const { error: showError, success } = useToast();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,19 +46,19 @@ export default function KnowledgeBase() {
 
   const handleSave = async () => {
     if (!formData.title || !formData.content) {
-      alert("Please fill in all required fields");
+      showError("Please fill in all required fields");
       return;
     }
     // TODO: Implement API call to save
     console.log("Saving:", formData);
+    success("Entry saved successfully!");
     setShowForm(false);
   };
 
   const handleDelete = (id) => {
-    if (confirm("Are you sure you want to delete this entry?")) {
-      // TODO: Implement API call to delete
-      setData(data.filter((item) => item._id !== id));
-    }
+    // TODO: Implement API call to delete
+    setData(data.filter((item) => item._id !== id));
+    success("Entry deleted successfully!");
   };
 
   return (

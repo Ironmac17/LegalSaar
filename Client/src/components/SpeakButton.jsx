@@ -1,9 +1,15 @@
 import { FiVolume2 } from "react-icons/fi";
+import { useToast } from "../hooks/useToast";
 
 export default function SpeakButton({ text, language = "en" }) {
+  const { error: showError } = useToast();
+
   const handleSpeak = () => {
     if (!window.speechSynthesis) {
-      alert("Speech synthesis not supported");
+      showError(
+        "Speech synthesis is not supported on your browser",
+        "Not Supported",
+      );
       return;
     }
 

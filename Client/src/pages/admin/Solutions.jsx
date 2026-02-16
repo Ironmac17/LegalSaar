@@ -1,9 +1,11 @@
 import { FiTarget, FiPlus, FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
 import { useState, useEffect } from "react";
+import { useToast } from "../../hooks/useToast";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
 
 export default function Solutions() {
+  const { success } = useToast();
   const [solutions, setSolutions] = useState([
     {
       _id: "1",
@@ -32,9 +34,8 @@ export default function Solutions() {
   );
 
   const handleDelete = (id) => {
-    if (confirm("Delete this solution?")) {
-      setSolutions(solutions.filter((item) => item._id !== id));
-    }
+    setSolutions(solutions.filter((item) => item._id !== id));
+    success("Solution deleted successfully!");
   };
 
   return (

@@ -1,10 +1,12 @@
 import { useRef, useState, useContext } from "react";
 import api from "../api/api";
 import { AuthContext } from "../auth/AuthContext";
+import { useToast } from "../hooks/useToast";
 import { FiMic, FiStopCircle, FiLoader } from "react-icons/fi";
 
 export default function VoiceRecorder({ onResult }) {
   const { language } = useContext(AuthContext);
+  const { error: showError } = useToast();
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
   const [recording, setRecording] = useState(false);
@@ -40,7 +42,10 @@ export default function VoiceRecorder({ onResult }) {
       setRecording(true);
     } catch (error) {
       console.error("Microphone access denied:", error);
-      alert("Please enable microphone access");
+      showError(
+        "Microphone access is required to use voice features",
+        "Permission Denied",
+      );
     }
   };
 

@@ -39,11 +39,7 @@ export default function Assistant() {
 
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          text: explanation,
-          timestamp: new Date(),
-        },
+        { role: "assistant", text: explanation, timestamp: new Date() },
       ]);
 
       if (res.data.audio) {
@@ -69,11 +65,7 @@ export default function Assistant() {
   const handleVoiceResult = (data) => {
     setMessages((prev) => [
       ...prev,
-      {
-        role: "assistant",
-        text: data.explanation,
-        timestamp: new Date(),
-      },
+      { role: "assistant", text: data.explanation, timestamp: new Date() },
     ]);
 
     if (data.audio) {
@@ -133,7 +125,6 @@ export default function Assistant() {
             <LanguageSelector />
           </div>
 
-          {/* System Status */}
           <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
             <p className="text-primary-800 text-sm font-medium">
               {currentDocumentId && documentName
@@ -150,14 +141,13 @@ export default function Assistant() {
 
         {/* Input Section */}
         <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
+
           {/* Document Upload */}
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition">
             <div className="flex flex-col items-center">
               <FiUpload className="w-12 h-12 text-gray-400 mb-3" />
               <h3 className="font-semibold text-gray-700 mb-2">Upload a Legal Document</h3>
-              <p className="text-gray-600 text-sm mb-4">
-                PDF, image, or document - we'll extract and analyze\n the clauses
-              </p>
+
               <input
                 type="file"
                 id="doc-upload"
@@ -166,26 +156,31 @@ export default function Assistant() {
                 className="hidden"
                 disabled={uploading}
               />
+
               <label htmlFor="doc-upload" className="cursor-pointer">
-                <Button
-                  variant="outline"
-                  as="span"
-                  disabled={uploading}
-                >
+                <Button variant="outline" as="span" disabled={uploading}>
                   {file ? `Selected: ${file.name}` : "Choose File"}
                 </Button>
               </label>
+
               {file && (
-                <Button
-                  onClick={uploadDocument}
-                  loading={uploading}
-                  className="mt-3"
-                >
+                <Button onClick={uploadDocument} loading={uploading} className="mt-3">
                   <FiFileText className="mr-2" />
                   Upload Document
                 </Button>
               )}
             </div>
+          </div>
+
+          {/* Extra Upload Section (kept as requested) */}
+          <div className="mt-6">
+            <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+            <button
+              onClick={uploadDocument}
+              className="ml-3 bg-green-600 text-white px-4 py-2"
+            >
+              Upload Document
+            </button>
           </div>
 
           {/* Voice Input */}
@@ -197,27 +192,12 @@ export default function Assistant() {
           {/* Text Input */}
           <div>
             <h3 className="font-semibold text-gray-700 mb-4">Ask a Question</h3>
-            <ChatInput
-              onSend={askText}
-              placeholder="Type your legal question here..."
-            />
+            <ChatInput onSend={askText} placeholder="Type your legal question here..." />
           </div>
 
           {/* Conversation Mode */}
           <ConversationMode />
         </div>
-      </div>
-    </div>
-  );
-}
-      <div className="mt-6">
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-        <button
-          onClick={uploadDocument}
-          className="ml-3 bg-green-600 text-white px-4 py-2"
-        >
-          Upload Document
-        </button>
       </div>
     </div>
   );

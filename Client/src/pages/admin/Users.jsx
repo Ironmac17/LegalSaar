@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUsers } from "../../api/adminApi";
-import { FiUsers, FiSearch, FiBlock, FiCheckCircle } from "react-icons/fi";
+import { FiUsers, FiSearch, FiSlash, FiCheckCircle } from "react-icons/fi";
 import Loader from "../../components/Loader";
 
 export default function Users() {
@@ -162,7 +162,7 @@ export default function Users() {
                           >
                             {user.blocked ? (
                               <>
-                                <FiBlock size={16} /> Blocked
+                                <FiSlash size={16} /> Blocked
                               </>
                             ) : (
                               <>

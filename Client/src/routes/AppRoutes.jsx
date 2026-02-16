@@ -18,31 +18,152 @@ import Solutions from "../pages/admin/Solutions";
 import AdminOffices from "../pages/admin/Offices";
 import Settings from "../pages/admin/Settings";
 
+import LandingPage from "../pages/LandingPage";
+import ProtectedRoute from "./ProtectedRoute";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <MainLayout>
-        <Routes>
-          {/* Citizen Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/ask" element={<AskQuestion />} />
-          <Route path="/upload" element={<UploadDocument />} />
-          <Route path="/assistant" element={<Assistant />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/legal-info" element={<LegalInfo />} />
-          <Route path="/offices" element={<Offices />} />
+      <Routes>
+        {/* Public Routes - No MainLayout */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<AdminLogin />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/knowledge" element={<KnowledgeBase />} />
-          <Route path="/admin/users" element={<Users />} />
-          <Route path="/admin/solutions" element={<Solutions />} />
-          <Route path="/admin/offices" element={<AdminOffices />} />
-          <Route path="/admin/settings" element={<Settings />} />
-        </Routes>
-      </MainLayout>
+        {/* Protected Routes - With MainLayout */}
+        <Route
+          path="/home"
+          element={
+            <MainLayout>
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/ask"
+          element={
+            <MainLayout>
+              <ProtectedRoute>
+                <AskQuestion />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/upload"
+          element={
+            <MainLayout>
+              <ProtectedRoute>
+                <UploadDocument />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/assistant"
+          element={
+            <MainLayout>
+              <ProtectedRoute>
+                <Assistant />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <MainLayout>
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/legal-info"
+          element={
+            <MainLayout>
+              <ProtectedRoute>
+                <LegalInfo />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/offices"
+          element={
+            <MainLayout>
+              <ProtectedRoute>
+                <Offices />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+
+        {/* Admin Protected Routes */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <MainLayout>
+              <ProtectedRoute adminOnly>
+                <Dashboard />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/knowledge"
+          element={
+            <MainLayout>
+              <ProtectedRoute adminOnly>
+                <KnowledgeBase />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <MainLayout>
+              <ProtectedRoute adminOnly>
+                <Users />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/solutions"
+          element={
+            <MainLayout>
+              <ProtectedRoute adminOnly>
+                <Solutions />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/offices"
+          element={
+            <MainLayout>
+              <ProtectedRoute adminOnly>
+                <AdminOffices />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/settings"
+          element={
+            <MainLayout>
+              <ProtectedRoute adminOnly>
+                <Settings />
+              </ProtectedRoute>
+            </MainLayout>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }

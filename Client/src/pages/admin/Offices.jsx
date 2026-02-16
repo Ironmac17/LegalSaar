@@ -1,9 +1,11 @@
 import { FiMapPin, FiPlus, FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
 import { useState } from "react";
+import { useToast } from "../../hooks/useToast";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
 
 export default function AdminOffices() {
+  const { success } = useToast();
   const [offices, setOffices] = useState([
     {
       _id: "1",
@@ -39,9 +41,8 @@ export default function AdminOffices() {
   );
 
   const handleDelete = (id) => {
-    if (confirm("Delete this office?")) {
-      setOffices(offices.filter((item) => item._id !== id));
-    }
+    setOffices(offices.filter((item) => item._id !== id));
+    success("Office deleted successfully!");
   };
 
   return (
