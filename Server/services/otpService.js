@@ -1,8 +1,9 @@
 const otpStore = new Map();
 
-const sendOTP = (phone) => {
+const sendOTP = async (phone) => {
   const otp = "123456";
   otpStore.set(phone, otp);
+  return true;   
 };
 
 const verifyOTP = (phone, otp) => {

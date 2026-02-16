@@ -10,8 +10,6 @@ const {
 const {
   ValidationError,
   AuthenticationError,
-  NotFoundError,
-  ConflictError,
 } = require("../utils/errors");
 
 const sendOtpController = async (req, res, next) => {
@@ -31,7 +29,7 @@ const sendOtpController = async (req, res, next) => {
     }
 
     // Send OTP
-    const sent = sendOTP(phone);
+    const sent = await sendOTP(phone);
     if (!sent) {
       throw new Error("Failed to send OTP");
     }
