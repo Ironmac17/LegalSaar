@@ -79,9 +79,10 @@ const verifyOtpController = async (req, res, next) => {
     }
 
     // Generate JWT token
+    const JWT_SECRET = process.env.JWT_SECRET || "dev_jwt_secret";
     const token = jwt.sign(
       { id: user._id, phone: user.phone, role: user.role },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
 
@@ -165,9 +166,10 @@ const adminLoginController = async (req, res, next) => {
     }
 
     // Generate JWT token
+    const JWT_SECRET = process.env.JWT_SECRET || "dev_jwt_secret";
     const token = jwt.sign(
       { id: admin._id, email: admin.email, role: admin.role },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
 

@@ -16,7 +16,7 @@ const documentSchema = new mongoose.Schema(
 
     fileType: {
       type: String,
-      enum: ["pdf", "image","txt"],
+      enum: ["pdf", "image", "txt"],
       required: true
     },
 
@@ -26,7 +26,7 @@ const documentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["uploaded", "processed", "failed"],
+      enum: ["uploaded", "processing", "processed", "failed"],
       default: "uploaded"
     },
 

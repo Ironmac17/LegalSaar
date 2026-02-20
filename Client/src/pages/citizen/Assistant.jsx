@@ -5,6 +5,7 @@ import LanguageSelector from "../../components/LanguageSelector";
 import ConversationMode from "../../components/ConversationMode";
 import ChatWindow from "../../components/ChatWindow";
 import ChatInput from "../../components/ChatInput";
+import { useToast } from "../../hooks/useToast";
 import { AuthContext } from "../../auth/AuthContext";
 import { FiUpload, FiFileText } from "react-icons/fi";
 import Loader from "../../components/Loader";
@@ -18,12 +19,71 @@ export default function Assistant() {
   const [uploading, setUploading] = useState(false);
   const [sendingQuestion, setSendingQuestion] = useState(false);
   const [documentName, setDocumentName] = useState(null);
+  const [awaitingResponse, setAwaitingResponse] = useState(false);
+  const toast = useToast();
+
+  // helper that uploads a file and updates state
+  const uploadDocument = async (selectedFile) => {
+    const fileToUpload = selectedFile || file;
+    if (!fileToUpload) return;
+
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", fileToUpload);
+
+      const res = await api.post("/documents/upload", form);
+      if (res.data && res.data.documentId) {
+        setCurrentDocumentId(res.data.documentId);
+        setDocumentName(fileToUpload.name);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            text: `Document \"${fileToUpload.name}\" uploaded successfully. I have extracted the clauses and analyzed them. You can now ask me questions about this document, or ask general legal questions.`,
+            timestamp: new Date(),
+          },
+        ]);
+        toast.success("Document uploaded successfully");
+        setFile(null);
+      } else {
+        throw new Error("Invalid upload response");
+      }
+    } catch (err) {
+      // upload error
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: "Failed to upload document. Please try again.",
+          timestamp: new Date(),
+        },
+      ]);
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const selected = e.target.files?.[0] || null;
+    setFile(selected);
+    if (selected) {
+      uploadDocument(selected);
+    }
+  };
 
   /* ---------- TEXT QUESTION ---------- */
   const askText = async (text) => {
     if (!text.trim()) return;
 
+    if (uploading) {
+      toast.info("Please wait for the document to finish uploading before asking.");
+      return;
+    }
+
     setSendingQuestion(true);
+    setAwaitingResponse(true);
     setMessages((prev) => [...prev, { role: "user", text, timestamp: new Date() }]);
 
     try {
@@ -42,12 +102,21 @@ export default function Assistant() {
         { role: "assistant", text: explanation, timestamp: new Date() },
       ]);
 
+      if (res.data.aiError) {
+        toast.warning(
+          "AI service currently unavailable: " +
+          (res.data.aiErrorMessage ||
+            "Please check your OpenAI API key, quota, or billing plan."),
+          "AI error"
+        );
+      }
+
       if (res.data.audio) {
         const audio = new Audio(res.data.audio);
         audio.play();
       }
     } catch (err) {
-      console.error("Error asking question:", err);
+      // question error
       setMessages((prev) => [
         ...prev,
         {
@@ -58,6 +127,7 @@ export default function Assistant() {
       ]);
     } finally {
       setSendingQuestion(false);
+      setAwaitingResponse(false);
     }
   };
 
@@ -74,43 +144,6 @@ export default function Assistant() {
     }
   };
 
-  /* ---------- DOCUMENT UPLOAD ---------- */
-  const uploadDocument = async () => {
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const form = new FormData();
-      form.append("file", file);
-
-      const res = await api.post("/documents/upload", form);
-      setCurrentDocumentId(res.data.documentId);
-      setDocumentName(file.name);
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          text: `Document "${file.name}" uploaded successfully. I have extracted the clauses and analyzed them. You can now ask me questions about this document, or ask general legal questions.`,
-          timestamp: new Date(),
-        },
-      ]);
-
-      setFile(null);
-    } catch (err) {
-      console.error("Error uploading document:", err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          text: "Failed to upload document. Please try again.",
-          timestamp: new Date(),
-        },
-      ]);
-    } finally {
-      setUploading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -125,63 +158,61 @@ export default function Assistant() {
             <LanguageSelector />
           </div>
 
-          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 flex items-center justify-between">
             <p className="text-primary-800 text-sm font-medium">
               {currentDocumentId && documentName
-                ? `📄 Analyzing: ${documentName}`
+                ? `📄 Document: ${documentName}`
                 : "Ready to help with legal questions"}
             </p>
+            {currentDocumentId && (
+              <button
+                onClick={() => {
+                  setCurrentDocumentId(null);
+                  setDocumentName(null);
+                  setMessages([]);
+                }}
+                className="text-sm text-danger-600 hover:underline"
+              >
+                Clear document
+              </button>
+            )}
           </div>
         </div>
 
         {/* Chat Area */}
         <div className="mb-6">
-          <ChatWindow messages={messages} />
+          <ChatWindow messages={messages} loading={awaitingResponse} />
         </div>
 
         {/* Input Section */}
         <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
 
-          {/* Document Upload */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition">
-            <div className="flex flex-col items-center">
-              <FiUpload className="w-12 h-12 text-gray-400 mb-3" />
-              <h3 className="font-semibold text-gray-700 mb-2">Upload a Legal Document</h3>
-
+          {/* Document Upload - hidden once a document has been processed */}
+          {!currentDocumentId && (
+            <label
+              htmlFor="doc-upload"
+              className="cursor-pointer block border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition"
+            >
               <input
                 type="file"
                 id="doc-upload"
-                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                accept=".pdf,.png,.jpg,.jpeg,.txt"
+                onChange={handleFileChange}
                 className="hidden"
                 disabled={uploading}
               />
+              <div className="flex flex-col items-center">
+                <FiUpload className="w-12 h-12 text-gray-400 mb-3" />
+                <h3 className="font-semibold text-gray-700 mb-2">
+                  Upload a Legal Document
+                </h3>
 
-              <label htmlFor="doc-upload" className="cursor-pointer">
                 <Button variant="outline" as="span" disabled={uploading}>
                   {file ? `Selected: ${file.name}` : "Choose File"}
                 </Button>
-              </label>
-
-              {file && (
-                <Button onClick={uploadDocument} loading={uploading} className="mt-3">
-                  <FiFileText className="mr-2" />
-                  Upload Document
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Extra Upload Section (kept as requested) */}
-          <div className="mt-6">
-            <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-            <button
-              onClick={uploadDocument}
-              className="ml-3 bg-green-600 text-white px-4 py-2"
-            >
-              Upload Document
-            </button>
-          </div>
+              </div>
+            </label>
+          )}
 
           {/* Voice Input */}
           <div>
@@ -192,7 +223,11 @@ export default function Assistant() {
           {/* Text Input */}
           <div>
             <h3 className="font-semibold text-gray-700 mb-4">Ask a Question</h3>
-            <ChatInput onSend={askText} placeholder="Type your legal question here..." />
+            <ChatInput
+              onSend={askText}
+              placeholder="Type your legal question here..."
+              disabled={uploading || sendingQuestion || awaitingResponse}
+            />
           </div>
 
           {/* Conversation Mode */}

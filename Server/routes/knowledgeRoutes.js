@@ -42,6 +42,11 @@ router.post(
   approveKnowledgeController
 );
 
+// Public search endpoint
+const { searchKnowledgeController } = require("../controllers/knowledgeController");
+
+router.get("/search", searchKnowledgeController);
+
 // Citizen + Admin (read-only)
 router.get("/", authMiddleware, getKnowledgeListController);
 router.get("/:id", authMiddleware, getKnowledgeController);

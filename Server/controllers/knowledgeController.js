@@ -34,6 +34,31 @@ const getKnowledgeListController = async (req, res, next) => {
   }
 };
 
+const searchKnowledgeController = async (req, res, next) => {
+  try {
+    const q = (req.query.q || "").trim();
+    if (!q) {
+      return res.status(400).json({ message: "Query parameter 'q' is required" });
+    }
+
+    // Basic text search across title, explanation and keywords
+    const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    const results = await Knowledge.find({
+      isActive: true,
+      status: "approved",
+      $or: [
+        { title: { $regex: regex } },
+        { explanation: { $regex: regex } },
+        { keywords: { $in: [new RegExp(q, "i")] } },
+      ],
+    }).limit(50);
+
+    res.json(results);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getKnowledgeController = async (req, res, next) => {
   try {
     const knowledge = await getKnowledgeById(req.params.id);
@@ -87,6 +112,7 @@ const approveKnowledgeController = async (req, res, next) => {
 module.exports = {
   createKnowledgeController,
   getKnowledgeListController,
+  searchKnowledgeController,
   getKnowledgeController,
   updateKnowledgeController,
   deleteKnowledgeController,

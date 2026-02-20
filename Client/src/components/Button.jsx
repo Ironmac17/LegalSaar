@@ -4,6 +4,7 @@ export default function Button({
   size = "md",
   loading = false,
   disabled = false,
+  as: Component = "button",
   ...props
 }) {
   const baseClasses =
@@ -34,7 +35,7 @@ export default function Button({
   const className = `${baseClasses} ${variants[variant]} ${sizes[size]}`;
 
   return (
-    <button className={className} disabled={disabled || loading} {...props}>
+    <Component className={className} disabled={disabled || loading} {...props}>
       {loading ? (
         <span className="flex items-center gap-2">
           <span className="inline-block w-4 h-4 border-2 border-t-transparent border-current rounded-full animate-spin"></span>
@@ -43,6 +44,6 @@ export default function Button({
       ) : (
         children
       )}
-    </button>
+    </Component>
   );
 }

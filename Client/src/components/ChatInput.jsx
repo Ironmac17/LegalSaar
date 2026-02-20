@@ -4,11 +4,12 @@ import { FiSend } from "react-icons/fi";
 export default function ChatInput({
   onSend,
   placeholder = "Ask your legal question...",
+  disabled = false,
 }) {
   const [text, setText] = useState("");
 
   const submit = () => {
-    if (!text.trim()) return;
+    if (disabled || !text.trim()) return;
     onSend(text);
     setText("");
   };
@@ -32,7 +33,7 @@ export default function ChatInput({
       />
       <button
         onClick={submit}
-        disabled={!text.trim()}
+        disabled={disabled || !text.trim()}
         className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-semibold"
       >
         <FiSend size={20} />

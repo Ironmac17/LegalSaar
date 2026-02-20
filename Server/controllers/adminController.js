@@ -21,9 +21,10 @@ const adminLogin = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    const JWT_SECRET = process.env.JWT_SECRET || "dev_jwt_secret";
     const token = jwt.sign(
       { id: admin._id, role: admin.role },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 

@@ -9,6 +9,7 @@ import {
   FiArrowRight,
   FiCheck,
 } from "react-icons/fi";
+import landingImage from "../assets/image.png";
 
 export default function LandingPage() {
   const features = [
@@ -68,12 +69,12 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* HERO SECTION */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-primary-900 via-primary-800 to-white">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-accent-500 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary-700 rounded-full blur-3xl"></div>
-        </div>
+      <section
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-cover bg-center"
+        style={{ backgroundImage: `url(${landingImage})` }}
+      >
+        {/* optional semi-transparent overlay */}
+        <div className="absolute inset-0 bg-black opacity-30"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
           <div className="mb-8 inline-block">
