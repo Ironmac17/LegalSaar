@@ -23,7 +23,10 @@ const getKnowledgeListController = async (req, res, next) => {
     const { category, state, keyword } = req.query;
 
     const filters = {};
-    if (category) filters.category = category;
+    if (category) {
+      // support case-insensitive partial match on category
+      filters.category = new RegExp(category, "i");
+    }
     if (state) filters.applicableStates = state;
     if (keyword) filters.keywords = keyword;
 
@@ -50,6 +53,7 @@ const searchKnowledgeController = async (req, res, next) => {
         { title: { $regex: regex } },
         { explanation: { $regex: regex } },
         { keywords: { $in: [new RegExp(q, "i")] } },
+        { category: { $regex: regex } },
       ],
     }).limit(50);
 

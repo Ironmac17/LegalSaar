@@ -1,31 +1,22 @@
 import { FiMapPin, FiPlus, FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "../../hooks/useToast";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
+import {
+  getOffices,
+  createOffice,
+  updateOffice,
+  deleteOffice,
+} from "../../api/adminApi";
 
 export default function AdminOffices() {
-  const { success } = useToast();
-  const [offices, setOffices] = useState([
-    {
-      _id: "1",
-      name: "District Police Office",
-      address: "Main Street, City Center",
-      city: "Mumbai",
-      type: "Police",
-      phone: "022-12345678",
-    },
-    {
-      _id: "2",
-      name: "District Court",
-      address: "Court Road, Judicial Complex",
-      city: "Delhi",
-      type: "Court",
-      phone: "011-87654321",
-    },
-  ]);
+  const { success, error } = useToast();
+  const [offices, setOffices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [editingOffice, setEditingOffice] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -34,15 +25,39 @@ export default function AdminOffices() {
     phone: "",
   });
 
+  const loadOffices = async () => {
+    setLoading(true);
+    try {
+      const res = await getOffices();
+      setOffices(res.data);
+    } catch (err) {
+      console.error("Failed to load offices", err);
+      error("Unable to fetch offices");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadOffices();
+  }, []);
+
   const filteredData = offices.filter(
     (item) =>
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.city.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const handleDelete = (id) => {
-    setOffices(offices.filter((item) => item._id !== id));
-    success("Office deleted successfully!");
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this office?")) return;
+    try {
+      await deleteOffice(id);
+      setOffices(offices.filter((item) => item._id !== id));
+      success("Office deleted successfully!");
+    } catch (err) {
+      console.error("Delete failed", err);
+      error("Could not delete office");
+    }
   };
 
   return (
@@ -59,6 +74,7 @@ export default function AdminOffices() {
           </div>
           <Button
             onClick={() => {
+              setEditingOffice(null);
               setFormData({
                 name: "",
                 address: "",
@@ -78,6 +94,11 @@ export default function AdminOffices() {
         </div>
 
         {/* Search */}
+        {loading && (
+          <div className="text-center py-12">
+            <Loader text="Loading offices..." />
+          </div>
+        )}
         <div className="mb-8">
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -92,6 +113,98 @@ export default function AdminOffices() {
         </div>
 
         {/* List */}
+        {showForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+              <h2 className="text-2xl font-bold mb-4">
+                {editingOffice ? "Edit Office" : "Add Office"}
+              </h2>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    if (editingOffice) {
+                      const res = await updateOffice(editingOffice._id, formData);
+                      setOffices(
+                        offices.map((o) =>
+                          o._id === editingOffice._id ? res.data : o,
+                        ),
+                      );
+                      success("Office updated");
+                    } else {
+                      const res = await createOffice(formData);
+                      setOffices([res.data, ...offices]);
+                      success("Office added");
+                    }
+                    setShowForm(false);
+                  } catch (err) {
+                    console.error("Save failed", err);
+                    error("Could not save office");
+                  }
+                }}
+              >
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Address"
+                    value={formData.address}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="City"
+                    value={formData.city}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Type (e.g. Police, Court)"
+                    value={formData.type}
+                    onChange={(e) =>
+                      setFormData({ ...formData, type: e.target.value })
+                    }
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Phone"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg"
+                  />
+                </div>
+                <div className="mt-6 flex justify-end gap-2">
+                  <Button onClick={() => setShowForm(false)} variant="outline">
+                    Cancel
+                  </Button>
+                  <Button type="submit" variant="success">
+                    Save
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
         {filteredData.length > 0 ? (
           <div className="grid gap-4">
             {filteredData.map((office) => (

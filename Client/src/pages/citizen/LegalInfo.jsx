@@ -20,13 +20,30 @@ export default function LegalInfo() {
   const [loading, setLoading] = useState(false);
   const [selectedResult, setSelectedResult] = useState(null);
 
+  const combineResults = (knowledgeArr, solutionArr) => {
+    const know = knowledgeArr.map((k) => ({
+      ...k,
+      type: "knowledge",
+      content: k.explanation,
+    }));
+    const sol = solutionArr.map((s) => ({
+      ...s,
+      type: "solution",
+      content: s.description,
+    }));
+    return [...know, ...sol];
+  };
+
   const search = async (searchQuery) => {
     if (!searchQuery.trim()) return;
 
     setLoading(true);
     try {
-      const res = await api.get(`/knowledge/search?q=${searchQuery}`);
-      setResults(res.data);
+      const [kres, sres] = await Promise.all([
+        api.get(`/knowledge/search?q=${encodeURIComponent(searchQuery)}`),
+        api.get(`/solutions/search?q=${encodeURIComponent(searchQuery)}`),
+      ]);
+      setResults(combineResults(kres.data, sres.data));
     } catch (err) {
       console.error("Search failed:", err);
     } finally {
@@ -34,9 +51,29 @@ export default function LegalInfo() {
     }
   };
 
+  const searchCategory = async (category) => {
+    setLoading(true);
+    try {
+      const [kres, sres] = await Promise.all([
+        api.get(`/knowledge?category=${encodeURIComponent(category)}`),
+        api.get(`/solutions/search?q=${encodeURIComponent(category)}`),
+      ]);
+      setResults(combineResults(kres.data, sres.data));
+    } catch (err) {
+      console.error("Category search failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearch = (q) => {
     setQuery(q);
-    search(q);
+    // if clicking a category button, use category endpoint for guaranteed matches
+    if (CATEGORIES.includes(q)) {
+      searchCategory(q);
+    } else {
+      search(q);
+    }
   };
 
   return (
@@ -115,6 +152,11 @@ export default function LegalInfo() {
                     {result.category && (
                       <span className="bg-primary-100 text-primary-700 px-2 py-1 rounded">
                         {result.category}
+                      </span>
+                    )}
+                    {result.type && (
+                      <span className="bg-secondary-100 text-secondary-700 px-2 py-1 rounded">
+                        {result.type === "solution" ? "Solution" : "Knowledge"}
                       </span>
                     )}
                   </div>

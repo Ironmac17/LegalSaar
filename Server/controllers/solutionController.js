@@ -4,11 +4,34 @@ const {
   updateSolution,
   deleteSolution
 } = require("../services/solutionService");
+const Solution = require("../models/Solution");
 
 const createSolutionController = async (req, res, next) => {
   try {
     const solution = await createSolution(req.body);
     res.status(201).json(solution);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const searchSolutionsController = async (req, res, next) => {
+  try {
+    const q = (req.query.q || "").trim();
+    if (!q) {
+      return res.status(400).json({ message: "Query parameter 'q' is required" });
+    }
+
+    const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    const results = await Solution.find({
+      isActive: true,
+      $or: [
+        { title: { $regex: regex } },
+        { description: { $regex: regex } },
+      ],
+    }).limit(50);
+
+    res.json(results);
   } catch (error) {
     next(error);
   }
@@ -49,6 +72,7 @@ const deleteSolutionController = async (req, res, next) => {
 
 module.exports = {
   createSolutionController,
+  searchSolutionsController,
   getSolutionsController,
   updateSolutionController,
   deleteSolutionController

@@ -36,4 +36,8 @@ router.delete(
 // Citizen + Admin
 router.get("/", authMiddleware, getSolutionsController);
 
+// public search route (used by legal info page)
+const { searchSolutionsController } = require("../controllers/solutionController");
+router.get("/search", searchSolutionsController);
+
 module.exports = router;

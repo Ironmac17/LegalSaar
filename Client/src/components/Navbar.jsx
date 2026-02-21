@@ -23,17 +23,15 @@ export default function Navbar() {
 
   // Law court theme: Black navbar with gold accents
   const navLinkClass = (path) =>
-    `px-4 py-2 rounded-lg font-medium transition-all ${
-      isActive(path)
-        ? "bg-accent-500 text-primary-900 shadow-lg"
-        : "text-gray-200 hover:bg-primary-700 hover:text-white"
+    `px-4 py-2 rounded-lg font-medium transition-all ${isActive(path)
+      ? "bg-accent-500 text-primary-900 shadow-lg"
+      : "text-gray-200 hover:bg-primary-700 hover:text-white"
     }`;
 
   const adminNavLinkClass = (path) =>
-    `px-4 py-2 rounded-lg font-medium transition-all ${
-      isActive(path)
-        ? "bg-accent-500 text-primary-900 shadow-lg"
-        : "text-gray-200 hover:bg-primary-700 hover:text-white"
+    `px-4 py-2 rounded-lg font-medium transition-all ${isActive(path)
+      ? "bg-accent-500 text-primary-900 shadow-lg"
+      : "text-gray-200 hover:bg-primary-700 hover:text-white"
     }`;
 
   // Don't show navbar on login pages
@@ -125,9 +123,6 @@ export default function Navbar() {
                     </Link>
                     <Link to="/ask" className={navLinkClass("/ask")}>
                       Ask
-                    </Link>
-                    <Link to="/upload" className={navLinkClass("/upload")}>
-                      Upload
                     </Link>
                     <Link
                       to="/legal-info"
@@ -243,13 +238,6 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Ask Question
-                </Link>
-                <Link
-                  to="/upload"
-                  className={navLinkClass("/upload") + " block"}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Upload Document
                 </Link>
                 <Link
                   to="/legal-info"
