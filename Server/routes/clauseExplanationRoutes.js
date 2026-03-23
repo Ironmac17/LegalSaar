@@ -4,6 +4,7 @@ const { explainClauseController } = require("../controllers/clauseExplanationCon
 
 const router = express.Router();
 
+// TODO: Rewrite using FAISS retrieval + FLAN-T5 inference
 router.get(
   "/:clauseId/explain",
   authMiddleware,

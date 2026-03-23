@@ -1,11 +1,8 @@
-const { speechToText } = require("../ml/voice/sttService");
-
 const transcribeAudioController = async (req, res, next) => {
   try {
-    const text = await speechToText(req.file.path);
-
+    // STT service removed - placeholder response
     res.json({
-      transcript: text
+      transcript: "Speech-to-text functionality is currently disabled."
     });
   } catch (err) {
     next(err);

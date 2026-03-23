@@ -1,16 +1,13 @@
-const { speechToText } = require("../ml/voice/sttService");
 const { resolveQuestion } = require("../services/questionResolverService");
-const { explainWithLLM } = require("../ml/llm/explainService");
-const { translateText } = require("../ml/translation/translateService");
-const { generateSpeech } = require("../ml/voice/ttsService");
 
 const voiceAskController = async (req, res, next) => {
   try {
+    const { question } = req.body;
     const language = req.query.lang || "en";
     const voiceEnabled = true;
 
-    // 1️⃣ Speech → Text
-    const transcript = await speechToText(req.file.path);
+    // 1️⃣ Use provided question (STT removed)
+    const transcript = question;
 
     // 2️⃣ Resolve question (RAG)
     const result = await resolveQuestion({
@@ -28,23 +25,17 @@ ${result.knowledge.map(k => k.description).join("\n")}
 `;
 
     // 3️⃣ LLM Explanation
-    let explanation = await explainWithLLM(contextText);
+    // TODO: Replace with FAISS retrieval + FLAN-T5 generation
+    // let explanation = await semanticSearch(question) + await flanT5Generate(contextText);
+    let explanation = "Placeholder: Explanation generated via FAISS + FLAN-T5";
 
-    // 4️⃣ Translation
-    if (language !== "en") {
-      explanation = await translateText(explanation, language);
-    }
+    // 4️⃣ Translation removed (now in Python ML service)
 
-    // 5️⃣ Speech output
-    let audio = null;
-    if (voiceEnabled) {
-      audio = await generateSpeech(explanation, language);
-    }
+    // 5️⃣ Speech output removed (TTS service not available)
 
     res.json({
       transcript,
       explanation,
-      audio,
       knowledge: result.knowledge,
       solutions: result.solutions
     });

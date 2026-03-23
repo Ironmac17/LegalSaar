@@ -87,9 +87,9 @@ export default function Assistant() {
     setMessages((prev) => [...prev, { role: "user", text, timestamp: new Date() }]);
 
     try {
+      // Updated for FAISS + FLAN-T5 (no prompt-based payload)
       const res = await api.post(`/questions/ask?lang=${language}`, {
         question: text,
-        documentId: currentDocumentId,
       });
 
       const explanation =

@@ -35,6 +35,7 @@ export default function AskQuestion() {
     setLoading(true);
     setError("");
     try {
+      // Updated for FAISS + FLAN-T5 (no prompt-based payload)
       const res = await api.post(`/questions/ask?lang=${language}`, {
         question: query,
       });

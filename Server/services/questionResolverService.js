@@ -3,7 +3,6 @@ const Knowledge = require("../models/Knowledge");
 const Solution = require("../models/Solution");
 const { detectIntent } = require("./intentDetectionService");
 const { semanticSearch } = require("./semanticSearchService");
-const { callLLM } = require("../ml/llm/llmClient");
 
 const resolveQuestion = async ({ question, documentId, lang }) => {
   const intent = detectIntent(question);
@@ -98,7 +97,10 @@ Question: ${question}
 Answer:`;
     }
 
-    explanation = await callLLM(prompt);
+    // TODO: Replace with FAISS retrieval + FLAN-T5 generation
+    // explanation = await semanticSearch(question) + await flanT5Generate(prompt);
+
+    explanation = "Placeholder: Response generated via FAISS + FLAN-T5";
 
     // if model returns unhelpful no-info message but we had clauses, fallback
     if (

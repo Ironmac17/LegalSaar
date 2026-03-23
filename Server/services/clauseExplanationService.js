@@ -1,8 +1,5 @@
 const Clause = require("../models/Clause");
 const Solution = require("../models/Solution");
-const { explainWithLLM } = require("../ml/llm/explainService");
-const { translateText } = require("../ml/translation/translateService");
-const { generateSpeech } = require("../ml/voice/ttsService");
 
 const explainClause = async (clauseId, options = {}) => {
   const { language = "en", voice = false } = options;
@@ -25,15 +22,17 @@ ${clause.text}
 
 RELATED LEGAL INFORMATION:
 ${clause.linkedKnowledge
-      .map(k => `- ${k.title}: ${k.description}`)
-      .join("\n")}
+        .map(k => `- ${k.title}: ${k.description}`)
+        .join("\n")}
 `;
   }
 
   // 2️⃣ Call LLM
   let explanation;
   try {
-    explanation = await explainWithLLM(contextText);
+    // TODO: Replace with FAISS retrieval + FLAN-T5 generation
+    // explanation = await semanticSearch(clause.text) + await flanT5Generate(contextText);
+    explanation = "Placeholder: Clause explanation generated via FAISS + FLAN-T5";
   } catch (err) {
     explanation = `
 This clause states the following:
@@ -42,25 +41,9 @@ ${clause.text}
 `.trim();
   }
 
-  // 3️⃣ Translate if needed
-  let translatedExplanation = explanation;
-  if (language && language !== "en") {
-    try {
-      translatedExplanation = await translateText(explanation, language);
-    } catch (err) {
-      translatedExplanation = explanation;
-    }
-  }
+  // 3️⃣ Translation removed (now in Python ML service)
 
-  // 4️⃣ Generate speech if enabled
-  let audioPath = null;
-  if (voice) {
-    try {
-      audioPath = await generateSpeech(translatedExplanation, language);
-    } catch (err) {
-      audioPath = null;
-    }
-  }
+  // 4️⃣ Speech generation removed (TTS service not available)
 
   // 5️⃣ Fetch related solutions
   let solutions = [];
@@ -75,8 +58,7 @@ ${clause.text}
   return {
     clauseId: clause._id,
     clauseText: clause.text,
-    explanation: translatedExplanation,
-    audio: audioPath,
+    explanation: explanation,
     linkedKnowledge: clause.linkedKnowledge,
     solutions
   };
