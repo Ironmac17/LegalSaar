@@ -1,7 +1,6 @@
 import { useState, useContext } from "react";
 import api from "../../api/api";
 import VoiceRecorder from "../../components/VoiceRecorder";
-import LanguageSelector from "../../components/LanguageSelector";
 import ConversationMode from "../../components/ConversationMode";
 import ChatWindow from "../../components/ChatWindow";
 import ChatInput from "../../components/ChatInput";
@@ -10,6 +9,7 @@ import { AuthContext } from "../../auth/AuthContext";
 import { FiUpload, FiFileText } from "react-icons/fi";
 import Loader from "../../components/Loader";
 import Button from "../../components/Button";
+import { t } from "../../utils/i18n";
 
 export default function Assistant() {
   const { language } = useContext(AuthContext);
@@ -154,17 +154,16 @@ export default function Assistant() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900">AI Legal Assistant</h1>
-              <p className="text-gray-600 mt-2">Ask legal questions and get instant answers</p>
+              <h1 className="text-4xl font-bold text-gray-900">{t("assistantHeading", language)}</h1>
+              <p className="text-gray-600 mt-2">{t("assistantSubheading", language)}</p>
             </div>
-            <LanguageSelector />
           </div>
 
           <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 flex items-center justify-between">
             <p className="text-primary-800 text-sm font-medium">
               {currentDocumentId && documentName
-                ? `📄 Document: ${documentName}`
-                : "Ready to help with legal questions"}
+                ? `📄 ${t("documentUploaded", language)} ${documentName}`
+                : t("readyHelp", language)}
             </p>
             {currentDocumentId && (
               <button

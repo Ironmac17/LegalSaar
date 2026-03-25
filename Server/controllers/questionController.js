@@ -23,7 +23,7 @@ const askQuestionController = async (req, res, next) => {
     const script = 'run_pipeline.py';
 
     const proc = spawn(pythonCmd, [script], { cwd: mlDir });
-    const payload = JSON.stringify({ question, clauses });
+    const payload = JSON.stringify({ question, clauses, lang: lang || 'en' });
 
     let stdout = '';
     let stderr = '';

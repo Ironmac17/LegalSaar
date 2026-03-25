@@ -1,11 +1,19 @@
 from semanticSearchService import semantic_search_func
 from flanT5Service import generate_answer
+from translationService import translate_text
 
-def process_question(question, clauses=None):
+def process_question(question, clauses=None, lang='en'):
     if clauses and question.lower().strip() == "explain":
         # For "explain", just return the document content
         explanation = "\n\n".join([chunk['text'] for chunk in clauses])
+        if lang and lang != 'en':
+            try:
+                explanation = translate_text(explanation, target_lang=lang, source_lang='en')
+            except Exception:
+                pass
+
         return {
+            'answer': explanation,
             'explanation': explanation,
             'clauses': clauses
         }
@@ -21,9 +29,16 @@ def process_question(question, clauses=None):
 
     # Step 2: Generate answer
     answer = generate_answer(question, context)
+    explanation = answer
+
+    if lang and lang != 'en':
+        try:
+            explanation = translate_text(answer, target_lang=lang, source_lang='en')
+        except Exception:
+            explanation = answer
 
     return {
         'answer': answer,
-        'explanation': answer,
+        'explanation': explanation,
         'clauses': chunks
     }

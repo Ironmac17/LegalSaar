@@ -2,9 +2,11 @@ import { Link, useLocation } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../auth/AuthContext";
 import { FiMenu, FiX, FiLogOut, FiHome } from "react-icons/fi";
+import LanguageSelector from "./LanguageSelector";
+import { t } from "../utils/i18n";
 
 export default function Navbar() {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, language } = useContext(AuthContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -57,13 +59,13 @@ export default function Navbar() {
                 to="/login"
                 className="px-6 py-2 rounded-lg bg-white text-primary-900 font-semibold hover:bg-gray-100 transition-all"
               >
-                Sign In
+                {t("signIn", language)}
               </Link>
               <Link
                 to="/login?tab=admin"
                 className="px-6 py-2 rounded-lg bg-accent-500 text-primary-900 font-semibold hover:bg-accent-600 transition-all"
               >
-                Admin
+                {t("admin", language)}
               </Link>
             </div>
           ) : (
@@ -113,25 +115,25 @@ export default function Navbar() {
                   <>
                     <Link to="/home" className={navLinkClass("/home")}>
                       <FiHome className="inline mr-2" size={18} />
-                      Home
+                      {t("home", language)}
                     </Link>
                     <Link
                       to="/assistant"
                       className={navLinkClass("/assistant")}
                     >
-                      Assistant
+                      {t("assistant", language)}
                     </Link>
                     <Link to="/ask" className={navLinkClass("/ask")}>
-                      Ask
+                      {t("ask", language)}
                     </Link>
                     <Link
                       to="/legal-info"
                       className={navLinkClass("/legal-info")}
                     >
-                      Legal Info
+                      {t("legalInfo", language)}
                     </Link>
                     <Link to="/offices" className={navLinkClass("/offices")}>
-                      Offices
+                      {t("offices", language)}
                     </Link>
                   </>
                 )}
@@ -139,8 +141,11 @@ export default function Navbar() {
             </>
           )}
 
-          {/* User Section & Mobile Menu Button */}
+          {/* User Section, Language Selector & Mobile Menu Button */}
           <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center">
+              <LanguageSelector />
+            </div>
             {user && (
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium text-accent-400 hidden sm:inline">
@@ -151,7 +156,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-danger-600 text-white hover:bg-danger-700 transition-all font-semibold"
                 >
                   <FiLogOut size={18} />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="hidden sm:inline">{t("logout", language)}</span>
                 </button>
               </div>
             )}

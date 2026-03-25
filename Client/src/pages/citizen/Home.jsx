@@ -10,50 +10,51 @@ import {
   FiGlobe,
   FiArrowRight,
 } from "react-icons/fi";
+import { t } from "../../utils/i18n";
 
 export default function Home() {
-  const { user } = useContext(AuthContext);
+  const { user, language } = useContext(AuthContext);
 
   const features = [
     {
       icon: <FiMic className="w-12 h-12" />,
-      title: "Voice Assistant",
-      description: "Ask legal questions using voice in your language",
+      title: t("voiceAssistant", language),
+      description: t("voiceAssistantDesc", language),
       to: "/assistant",
       color: "from-primary-700 to-primary-900",
     },
     {
       icon: <FiUpload className="w-12 h-12" />,
-      title: "Document Analysis",
-      description: "Upload & analyze legal documents",
+      title: t("documentAnalysis", language),
+      description: t("documentAnalysisDesc", language),
       to: "/upload",
       color: "from-accent-600 to-accent-800",
     },
     {
       icon: <FiBookOpen className="w-12 h-12" />,
-      title: "Ask Questions",
-      description: "Get expert answers to your legal queries",
+      title: t("askQuestions", language),
+      description: t("askQuestionsDesc", language),
       to: "/ask",
       color: "from-primary-700 to-primary-900",
     },
     {
       icon: <FiMapPin className="w-12 h-12" />,
-      title: "Find Offices",
-      description: "Locate government offices near you",
+      title: t("findOffices", language),
+      description: t("findOfficesDesc", language),
       to: "/offices",
       color: "from-accent-600 to-accent-800",
     },
     {
       icon: <FiBookOpen className="w-12 h-12" />,
-      title: "Legal Info",
-      description: "Learn about your rights and laws",
+      title: t("legalInfo", language),
+      description: t("legalInfoDesc", language),
       to: "/legal-info",
       color: "from-primary-700 to-primary-900",
     },
     {
       icon: <FiGlobe className="w-12 h-12" />,
-      title: "Multi-Language",
-      description: "Access help in 10+ Indian languages",
+      title: t("multiLanguage", language),
+      description: t("multiLanguageDesc", language),
       to: "/assistant",
       color: "from-accent-600 to-accent-800",
     },
@@ -67,12 +68,11 @@ export default function Home() {
           <div className="flex items-center gap-4 mb-4">
             <span className="text-4xl">👋</span>
             <h1 className="text-4xl sm:text-5xl font-bold">
-              Welcome, {user?.name || "Citizen"}!
+              {t("welcome", language)}, {user?.name || t("citizen", language)}!
             </h1>
           </div>
           <p className="text-lg text-gray-200 mb-6">
-            Your one-stop platform for legal guidance in India. Understand laws,
-            get expert advice, and know your rights.
+            {t("oneStopSubtitle", language)}
           </p>
         </div>
       </section>
@@ -83,11 +83,10 @@ export default function Home() {
           {/* Section Header */}
           <div className="mb-12">
             <h2 className="text-4xl font-bold text-primary-900 mb-4">
-              What Can You Do?
+              {t("whatCanYouDo", language)}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl">
-              Access all our features to get legal help instantly. Choose what
-              you need:
+              {t("accessFeatures", language)}
             </p>
           </div>
 

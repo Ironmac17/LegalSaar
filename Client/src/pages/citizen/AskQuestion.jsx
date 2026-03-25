@@ -2,21 +2,14 @@ import { useState, useContext } from "react";
 import api from "../../api/api";
 import { AuthContext } from "../../auth/AuthContext";
 import VoiceRecorder from "../../components/VoiceRecorder";
-import LanguageSelector from "../../components/LanguageSelector";
 import ChatInput from "../../components/ChatInput";
 import ChatBubble from "../../components/ChatBubble";
 import { FiHelpCircle, FiSearch } from "react-icons/fi";
 import Loader from "../../components/Loader";
 import Button from "../../components/Button";
+import { t } from "../../utils/i18n";
 
-const SAMPLE_QUESTIONS = [
-  "What are my rights if my salary is not paid on time?",
-  "How do I file a complaint with the police?",
-  "What is the process to get a PAN card?",
-  "What are tenant rights in India?",
-  "How do I file for divorce?",
-  "What is the minimum wage in my state?",
-];
+
 
 export default function AskQuestion() {
   const { language } = useContext(AuthContext);
@@ -28,7 +21,7 @@ export default function AskQuestion() {
 
   const handleSearch = async (query) => {
     if (!query.trim()) {
-      setError("Please enter a question");
+      setError(t("enterQuestionError", language));
       return;
     }
 
@@ -64,17 +57,12 @@ export default function AskQuestion() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <FiHelpCircle className="w-12 h-12 text-primary-600" />
             <h1 className="text-4xl font-bold text-gray-900">
-              Ask a Legal Question
+              {t("askTitle", language)}
             </h1>
           </div>
           <p className="text-gray-600 text-lg">
-            Get instant answers about your legal rights and procedures
+            {t("askSubtitle", language)}
           </p>
-        </div>
-
-        {/* Language Selector */}
-        <div className="flex justify-center mb-8">
-          <LanguageSelector />
         </div>
 
         {/* Search Mode Toggle */}
@@ -83,13 +71,13 @@ export default function AskQuestion() {
             variant={searchType === "text" ? "primary" : "secondary"}
             onClick={() => setSearchType("text")}
           >
-            Text Search
+            {t("textSearch", language)}
           </Button>
           <Button
             variant={searchType === "voice" ? "primary" : "secondary"}
             onClick={() => setSearchType("voice")}
           >
-            Voice Search
+            {t("voiceSearch", language)}
           </Button>
         </div>
 
@@ -109,7 +97,7 @@ export default function AskQuestion() {
                   setSearchQuery(query);
                   handleSearch(query);
                 }}
-                placeholder="Type your legal question here..."
+                placeholder={t("placeholder", language)}
               />
             </div>
           </div>
@@ -120,7 +108,7 @@ export default function AskQuestion() {
           <div className="mb-8">
             <div className="bg-white p-6 rounded-lg shadow-md text-center">
               <p className="text-gray-600 mb-6">
-                Tap the microphone button and speak your question
+                {t("tapMicrophone", language)}
               </p>
               <VoiceRecorder onResult={handleVoiceResult} />
             </div>
@@ -130,17 +118,17 @@ export default function AskQuestion() {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
-            <Loader text="Finding answer..." />
+            <Loader text={t("findingAnswer", language)} />
           </div>
         )}
 
         {/* Result */}
         {result && !loading && (
           <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Answer</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">{t("answer", language)}</h2>
             <ChatBubble
               role="assistant"
-              text={result.explanation || "No explanation available"}
+              text={result.explanation || t("noExplanation", language)}
             />
 
             {result.suggestedActions && result.suggestedActions.length > 0 && (
@@ -186,10 +174,10 @@ export default function AskQuestion() {
           <div className="bg-white rounded-lg shadow-md p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <FiSearch size={24} />
-              Popular Questions
+              {t("popularQuestions", language)}
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
-              {SAMPLE_QUESTIONS.map((q, i) => (
+              {(t("sampleQuestions", language) || []).map((q, i) => (
                 <button
                   key={i}
                   onClick={() => {
