@@ -1,9 +1,20 @@
 from semanticSearchService import semantic_search_func
 from flanT5Service import generate_answer
 
-def process_question(question):
-    # Step 1: Semantic search
-    chunks = semantic_search_func(question, top_k=3)
+def process_question(question, clauses=None):
+    if clauses and question.lower().strip() == "explain":
+        # For "explain", just return the document content
+        explanation = "\n\n".join([chunk['text'] for chunk in clauses])
+        return {
+            'explanation': explanation,
+            'clauses': clauses
+        }
+    elif clauses:
+        # Use provided clauses as context
+        chunks = clauses
+    else:
+        # Step 1: Semantic search in knowledge base
+        chunks = semantic_search_func(question, top_k=3)
 
     # Combine top chunks into context
     context = " ".join([chunk['text'] for chunk in chunks])
@@ -13,5 +24,6 @@ def process_question(question):
 
     return {
         'answer': answer,
-        'context_chunks': chunks
+        'explanation': answer,
+        'clauses': chunks
     }

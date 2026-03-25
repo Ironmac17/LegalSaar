@@ -90,10 +90,12 @@ export default function Assistant() {
       // Updated for FAISS + FLAN-T5 (no prompt-based payload)
       const res = await api.post(`/questions/ask?lang=${language}`, {
         question: text,
+        documentId: currentDocumentId,
       });
 
       const explanation =
         res.data.explanation ||
+        res.data.answer ||
         res.data.clauses?.map((c) => c.text).join("\n\n") ||
         "No explanation generated.";
 
