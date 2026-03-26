@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import api from "../../api/api";
 import { FiUpload, FiFile, FiX, FiCheckCircle } from "react-icons/fi";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../auth/AuthContext";
+import { t } from "../../utils/i18n";
 
 const ALLOWED_TYPES = [
   ".pdf",
@@ -16,6 +18,7 @@ const ALLOWED_TYPES = [
 ];
 
 export default function UploadDocument() {
+  const { language } = useContext(AuthContext);
   const [file, setFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -36,9 +39,7 @@ export default function UploadDocument() {
       return;
     }
     if (!validateFile(f)) {
-      setError(
-        "Invalid file. Allowed types: PDF, DOC, DOCX, PNG, JPG, JPEG, TXT (max 10MB)",
-      );
+      setError(t("invalidFileError", language));
       return;
     }
     setFile(f);
@@ -64,7 +65,7 @@ export default function UploadDocument() {
 
   const upload = async () => {
     if (!file) {
-      setError("Please select a file");
+      setError(t("pleaseSelectFile", language));
       return;
     }
 
@@ -79,7 +80,7 @@ export default function UploadDocument() {
       setFile(null);
     } catch (err) {
       setError(
-        err.response?.data?.message || "Upload failed. Please try again.",
+        err.response?.data?.message || t("uploadFailed", language),
       );
     } finally {
       setUploading(false);
@@ -92,18 +93,17 @@ export default function UploadDocument() {
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
           <FiCheckCircle className="w-16 h-16 text-success-600 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Upload Successful!
+            {t("uploadSuccessTitle", language)}
           </h2>
           <p className="text-gray-600 mb-6">
-            Your document has been analyzed. You can now ask questions about it
-            in the AI Assistant.
+            {t("uploadSuccessDesc", language)}
           </p>
           <div className="space-y-3">
             <Link
               to="/assistant"
               className="block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition font-semibold"
             >
-              Go to Assistant
+              {t("goToAssistant", language)}
             </Link>
             <button
               onClick={() => {
@@ -112,7 +112,7 @@ export default function UploadDocument() {
               }}
               className="block w-full bg-gray-200 text-gray-900 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
             >
-              Upload Another
+              {t("uploadAnother", language)}
             </button>
           </div>
         </div>
@@ -126,10 +126,10 @@ export default function UploadDocument() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Upload Your Document
+            {t("uploadDocumentPageTitle", language)}
           </h1>
           <p className="text-gray-600 text-lg">
-            Upload any legal document and get clause-by-clause explanations
+            {t("uploadDocumentPageSubtitle", language)}
           </p>
         </div>
 
@@ -147,17 +147,16 @@ export default function UploadDocument() {
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-lg p-12 text-center transition ${
-            dragActive
-              ? "border-primary-600 bg-primary-50"
-              : "border-gray-300 hover:border-primary-600 hover:bg-gray-50"
-          }`}
+          className={`border-2 border-dashed rounded-lg p-12 text-center transition ${dragActive
+            ? "border-primary-600 bg-primary-50"
+            : "border-gray-300 hover:border-primary-600 hover:bg-gray-50"
+            }`}
         >
           <FiUpload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Drag and drop your file
+            {t("dragDropTitle", language)}
           </h2>
-          <p className="text-gray-600 mb-6">or click below to select</p>
+          <p className="text-gray-600 mb-6">{t("orClickBelow", language)}</p>
 
           <input
             type="file"
@@ -169,12 +168,12 @@ export default function UploadDocument() {
           />
           <label htmlFor="file-input" className="cursor-pointer">
             <Button variant="primary" size="lg" disabled={uploading} as="span">
-              Choose File
+              {t("chooseFile", language)}
             </Button>
           </label>
 
           <p className="text-gray-500 text-sm mt-4">
-            Supported: {ALLOWED_TYPES.join(", ")} • Max 10MB
+            {t("supportedFiles", language)} {ALLOWED_TYPES.join(", ")} • {t("maxFileSize", language)}
           </p>
         </div>
 
@@ -207,7 +206,7 @@ export default function UploadDocument() {
                 disabled={!file || uploading}
                 size="lg"
               >
-                {uploading ? "Uploading..." : "Upload & Analyze Document"}
+                {uploading ? t("uploading", language) : t("uploadAndAnalyze", language)}
               </Button>
             </div>
           </div>
@@ -217,20 +216,18 @@ export default function UploadDocument() {
         <div className="mt-12 grid md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <div className="text-2xl font-bold text-primary-600 mb-2">1</div>
-            <h3 className="font-semibold text-gray-900">Upload</h3>
-            <p className="text-gray-600 text-sm">Choose your legal document</p>
+            <h3 className="font-semibold text-gray-900">{t("stepUpload", language)}</h3>
+            <p className="text-gray-600 text-sm">{t("stepUploadDesc", language)}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <div className="text-2xl font-bold text-accent-600 mb-2">2</div>
-            <h3 className="font-semibold text-gray-900">Analyze</h3>
-            <p className="text-gray-600 text-sm">
-              We extract and analyze clauses
-            </p>
+            <h3 className="font-semibold text-gray-900">{t("stepAnalyze", language)}</h3>
+            <p className="text-gray-600 text-sm">{t("stepAnalyzeDesc", language)}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <div className="text-2xl font-bold text-success-600 mb-2">3</div>
-            <h3 className="font-semibold text-gray-900">Understand</h3>
-            <p className="text-gray-600 text-sm">Get clear explanations</p>
+            <h3 className="font-semibold text-gray-900">{t("stepUnderstand", language)}</h3>
+            <p className="text-gray-600 text-sm">{t("stepUnderstandDesc", language)}</p>
           </div>
         </div>
       </div>

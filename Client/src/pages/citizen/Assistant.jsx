@@ -40,11 +40,11 @@ export default function Assistant() {
           ...prev,
           {
             role: "assistant",
-            text: `Document \"${fileToUpload.name}\" uploaded successfully. I have extracted the clauses and analyzed them. You can now ask me questions about this document, or ask general legal questions.`,
+            text: `${t("documentUploaded", language)} ${fileToUpload.name}`,
             timestamp: new Date(),
           },
         ]);
-        toast.success("Document uploaded successfully");
+        toast.success(t("documentUploaded", language));
         setFile(null);
       } else {
         throw new Error("Invalid upload response");
@@ -55,11 +55,11 @@ export default function Assistant() {
         ...prev,
         {
           role: "assistant",
-          text: "Failed to upload document. Please try again.",
+          text: t("failedUpload", language),
           timestamp: new Date(),
         },
       ]);
-      toast.error("Upload failed");
+      toast.error(t("failedUpload", language));
     } finally {
       setUploading(false);
     }
@@ -78,7 +78,7 @@ export default function Assistant() {
     if (!text.trim()) return;
 
     if (uploading) {
-      toast.info("Please wait for the document to finish uploading before asking.");
+      toast.info(t("pleaseWaitUpload", language));
       return;
     }
 
@@ -123,7 +123,7 @@ export default function Assistant() {
         ...prev,
         {
           role: "assistant",
-          text: "Sorry, I could not process your question. Please try again.",
+          text: t("sorryQuestionError", language) || "Sorry, I could not process your question. Please try again.",
           timestamp: new Date(),
         },
       ]);
@@ -174,7 +174,7 @@ export default function Assistant() {
                 }}
                 className="text-sm text-danger-600 hover:underline"
               >
-                Clear document
+                {t("clearDocument", language)}
               </button>
             )}
           </div>
@@ -205,11 +205,11 @@ export default function Assistant() {
               <div className="flex flex-col items-center">
                 <FiUpload className="w-12 h-12 text-gray-400 mb-3" />
                 <h3 className="font-semibold text-gray-700 mb-2">
-                  Upload a Legal Document
+                  {t("uploadLegalDocument", language)}
                 </h3>
 
                 <Button variant="outline" as="span" disabled={uploading}>
-                  {file ? `Selected: ${file.name}` : "Choose File"}
+                  {file ? `${t("selectedFile", language)}: ${file.name}` : t("chooseFile", language)}
                 </Button>
               </div>
             </label>
@@ -217,16 +217,16 @@ export default function Assistant() {
 
           {/* Voice Input */}
           <div>
-            <h3 className="font-semibold text-gray-700 mb-4">Ask by Voice</h3>
+            <h3 className="font-semibold text-gray-700 mb-4">{t("askByVoice", language)}</h3>
             <VoiceRecorder onResult={handleVoiceResult} />
           </div>
 
           {/* Text Input */}
           <div>
-            <h3 className="font-semibold text-gray-700 mb-4">Ask a Question</h3>
+            <h3 className="font-semibold text-gray-700 mb-4">{t("askAQuestion", language)}</h3>
             <ChatInput
               onSend={askText}
-              placeholder="Type your legal question here..."
+              placeholder={t("placeholder", language)}
               disabled={uploading || sendingQuestion || awaitingResponse}
             />
           </div>

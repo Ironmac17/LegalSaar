@@ -3,9 +3,10 @@ import { AuthContext } from "../../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { FiUser, FiMail, FiPhone, FiLogOut, FiEdit } from "react-icons/fi";
 import Button from "../../components/Button";
+import { t } from "../../utils/i18n";
 
 export default function Profile() {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, language } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -17,7 +18,7 @@ export default function Profile() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Please log in to view your profile</p>
+        <p className="text-gray-600">{t("pleaseLoginToViewProfile", language)}</p>
       </div>
     );
   }
@@ -27,8 +28,8 @@ export default function Profile() {
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Profile</h1>
-          <p className="text-gray-600">Manage your account information</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">{t("myProfile", language)}</h1>
+          <p className="text-gray-600">{t("manageAccountInfo", language)}</p>
         </div>
 
         {/* Profile Card */}
@@ -48,9 +49,9 @@ export default function Profile() {
             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
               <FiPhone className="text-primary-600 flex-shrink-0" size={24} />
               <div className="flex-grow">
-                <p className="text-gray-600 text-sm">Phone Number</p>
+                <p className="text-gray-600 text-sm">{t("phoneNumber", language)}</p>
                 <p className="text-gray-900 font-semibold">
-                  {user.phone || "Not provided"}
+                  {user.phone || t("notProvided", language)}
                 </p>
               </div>
             </div>
@@ -58,9 +59,9 @@ export default function Profile() {
             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
               <FiMail className="text-primary-600 flex-shrink-0" size={24} />
               <div className="flex-grow">
-                <p className="text-gray-600 text-sm">Email</p>
+                <p className="text-gray-600 text-sm">{t("email", language)}</p>
                 <p className="text-gray-900 font-semibold">
-                  {user.email || "Not provided"}
+                  {user.email || t("notProvided", language)}
                 </p>
               </div>
             </div>
@@ -68,9 +69,9 @@ export default function Profile() {
             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
               <FiUser className="text-primary-600 flex-shrink-0" size={24} />
               <div className="flex-grow">
-                <p className="text-gray-600 text-sm">Account Status</p>
+                <p className="text-gray-600 text-sm">{t("accountStatus", language)}</p>
                 <p className="text-gray-900 font-semibold">
-                  Active
+                  {t("active", language)}
                 </p>
               </div>
             </div>
@@ -84,7 +85,7 @@ export default function Profile() {
               className="w-full flex items-center justify-center gap-2"
             >
               <FiEdit size={20} />
-              Edit Profile
+              {t("editProfile", language)}
             </Button>
             <Button
               variant="danger"
@@ -93,7 +94,7 @@ export default function Profile() {
               onClick={handleLogout}
             >
               <FiLogOut size={20} />
-              Logout
+              {t("logout", language)}
             </Button>
           </div>
         </div>
@@ -101,10 +102,10 @@ export default function Profile() {
         {/* Activity Card */}
         <div className="mt-8 bg-white rounded-lg shadow-md p-8">
           <h3 className="text-xl font-bold text-gray-900 mb-6">
-            Recent Activity
+            {t("recentActivity", language)}
           </h3>
           <div className="text-center text-gray-600">
-            <p>No recent activity</p>
+            <p>{t("noRecentActivity", language)}</p>
           </div>
         </div>
       </div>

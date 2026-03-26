@@ -7,24 +7,23 @@ db = client['legalSaas']
 translation_cache = db['translation_cache']
 
 class TranslationService:
-    def __init__(self):
-        self.translator = GoogleTranslator()
-
     def translate(self, text, target_lang, source_lang='en'):
         # Check cache
         cache_key = f"{text}_{source_lang}_{target_lang}"
         cached = translation_cache.find_one({'key': cache_key})
-        if cached:
+        if cached and cached.get('translation') and cached['translation'] != text:
             return cached['translation']
 
-        # Translate
-        translated = self.translator.translate(text, src=source_lang, dest=target_lang)
+        # Translate using explicit source/target
+        translator = GoogleTranslator(source=source_lang, target=target_lang)
+        translated = translator.translate(text)
 
-        # Cache
-        translation_cache.insert_one({
-            'key': cache_key,
-            'translation': translated
-        })
+        # Cache (replace old or insert new)
+        translation_cache.update_one(
+            {'key': cache_key},
+            {'$set': {'translation': translated}},
+            upsert=True
+        )
 
         return translated
 

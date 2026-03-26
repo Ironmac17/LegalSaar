@@ -1,7 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
 import ChatBubble from "./ChatBubble";
+import { AuthContext } from "../auth/AuthContext";
+import { t } from "../utils/i18n";
 
 export default function ChatWindow({ messages, loading }) {
+  const { language } = useContext(AuthContext);
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -14,9 +17,9 @@ export default function ChatWindow({ messages, loading }) {
         <div className="h-full flex items-center justify-center text-gray-400">
           <div className="text-center">
             <div className="text-4xl mb-3">⚖️</div>
-            <p className="font-medium">No messages yet</p>
+            <p className="font-medium">{t("noMessagesYet", language)}</p>
             <p className="text-sm">
-              Start by asking a legal question or uploading a document
+              {t("noMessagesHint", language)}
             </p>
           </div>
         </div>

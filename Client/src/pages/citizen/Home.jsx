@@ -108,7 +108,7 @@ export default function Home() {
                   {feature.description}
                 </p>
                 <div className="flex items-center gap-2 text-white font-semibold group-hover:translate-x-2 transition-transform">
-                  Explore <FiArrowRight size={18} />
+                  {t("explore", language)} <FiArrowRight size={18} />
                 </div>
               </Link>
             ))}
@@ -120,24 +120,24 @@ export default function Home() {
       <section className="bg-primary-50 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-primary-900 mb-12 text-center">
-            Quick Start Guide
+            {t("quickStart", language)}
           </h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-3xl mx-auto">
             {[
               {
                 number: "1️⃣",
-                title: "Choose Your Need",
-                desc: "Select from AI Assistant, Document Upload, or Ask Questions",
+                title: t("chooseNeed", language),
+                desc: t("accessFeatures", language),
               },
               {
                 number: "2️⃣",
-                title: "Ask or Upload",
-                desc: "Ask in your language or upload any legal document",
+                title: t("askOrUpload", language),
+                desc: t("documentAnalysisDesc", language),
               },
               {
                 number: "3️⃣",
-                title: "Get Answers",
-                desc: "Receive clear, simple explanations instantly",
+                title: t("getAnswers", language),
+                desc: t("askQuestionsDesc", language),
               },
             ].map((step, i) => (
               <div key={i} className="text-center">
@@ -160,16 +160,13 @@ export default function Home() {
               <FiShield className="text-accent-600 w-8 h-8 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="text-xl font-bold text-primary-900 mb-2">
-                  ⚖️ Your Privacy is Protected
+                  ⚖️ {t("privacyTitle", language)}
                 </h3>
                 <p className="text-gray-700 mb-4">
-                  All your documents and queries are completely secure and
-                  confidential. We use bank-level encryption to protect your
-                  data. Your information is never shared without your explicit
-                  consent.
+                  {t("privacyDesc", language)}
                 </p>
                 <p className="text-sm text-gray-600 font-semibold">
-                  ✓ Encrypted end-to-end • ✓ No data sharing • ✓ GDPR compliant
+                  {t("privacyBullet", language)}
                 </p>
               </div>
             </div>
@@ -180,24 +177,24 @@ export default function Home() {
       {/* Tips Section */}
       <section className="bg-primary-900 text-white py-16 px-4 sm:px-6 lg:px-8 border-t-4 border-accent-500">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8">💡 Helpful Tips</h2>
+          <h2 className="text-3xl font-bold mb-8">💡 {t("tips", language)}</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {[
               {
-                title: "Use Voice for Better Results",
-                desc: "Speak naturally - our AI understands conversational language",
+                title: t("tipOne", language),
+                desc: t("tipOneDesc", language),
               },
               {
-                title: "Be Specific in Questions",
-                desc: "Include details about your location and situation",
+                title: t("tipTwo", language),
+                desc: t("tipTwoDesc", language),
               },
               {
-                title: "Check Multiple Languages",
-                desc: "Get explanations in 10+ Indian languages",
+                title: t("tipThree", language),
+                desc: t("tipThreeDesc", language),
               },
               {
-                title: "Save Important Information",
-                desc: "Keep notes of answers for future reference",
+                title: t("tipFour", language),
+                desc: t("tipFourDesc", language),
               },
             ].map((tip, i) => (
               <div
