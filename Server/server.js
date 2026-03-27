@@ -18,6 +18,8 @@ const clauseExplanationRoutes = require("./routes/clauseExplanationRoutes");
 const questionRoutes = require("./routes/questionRoutes");
 const speechRoutes = require("./routes/speechRoutes");
 const voiceAskRoutes = require("./routes/voiceAskRoutes");
+const indianKanoonRoutes = require("./routes/indianKanoonRoutes");
+const translateRoutes = require("./routes/translateRoutes");
 
 const app = express();
 
@@ -45,6 +47,8 @@ app.use("/api/clause-explanations", clauseExplanationRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/speech", speechRoutes);
 app.use("/api/voice", voiceAskRoutes);
+app.use("/api/indian-kanoon", indianKanoonRoutes);
+app.use("/api/translate", translateRoutes);
 
 // Health check
 app.get("/", (req, res) => {

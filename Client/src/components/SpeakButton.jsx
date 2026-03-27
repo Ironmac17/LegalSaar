@@ -1,8 +1,28 @@
-import { FiVolume2 } from "react-icons/fi";
+import { useEffect, useRef } from "react";
+import { FiVolume2, FiVolumeX } from "react-icons/fi";
 import { useToast } from "../hooks/useToast";
 
 export default function SpeakButton({ text, language = "en" }) {
   const { error: showError } = useToast();
+  const utteranceRef = useRef(null);
+  const isSpeakingRef = useRef(false);
+
+  // Stop speech when text or language changes
+  useEffect(() => {
+    if (window.speechSynthesis && isSpeakingRef.current) {
+      window.speechSynthesis.cancel();
+      isSpeakingRef.current = false;
+    }
+  }, [text, language]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const handleSpeak = () => {
     if (!window.speechSynthesis) {
@@ -13,11 +33,30 @@ export default function SpeakButton({ text, language = "en" }) {
       return;
     }
 
+    // If already speaking, stop it
+    if (isSpeakingRef.current) {
+      window.speechSynthesis.cancel();
+      isSpeakingRef.current = false;
+      return;
+    }
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = getLanguageCode(language);
     utterance.rate = 0.9;
 
-    window.speechSynthesis.cancel();
+    utterance.onstart = () => {
+      isSpeakingRef.current = true;
+    };
+
+    utterance.onend = () => {
+      isSpeakingRef.current = false;
+    };
+
+    utterance.onerror = () => {
+      isSpeakingRef.current = false;
+    };
+
+    utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   };
 
@@ -41,10 +80,10 @@ export default function SpeakButton({ text, language = "en" }) {
     <button
       onClick={handleSpeak}
       className="flex items-center gap-2 bg-accent-600 text-white px-4 py-2 rounded-lg hover:bg-accent-700 transition-all font-semibold"
-      title="Listen to this text"
+      title={isSpeakingRef.current ? "Stop listening" : "Listen to this text"}
     >
-      <FiVolume2 size={18} />
-      Listen
+      {isSpeakingRef.current ? <FiVolumeX size={18} /> : <FiVolume2 size={18} />}
+      {isSpeakingRef.current ? "Stop" : "Listen"}
     </button>
   );
 }
