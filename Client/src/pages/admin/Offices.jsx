@@ -25,22 +25,21 @@ export default function AdminOffices() {
     phone: "",
   });
 
-  const loadOffices = async () => {
-    setLoading(true);
-    try {
-      const res = await getOffices();
-      setOffices(res.data);
-    } catch (err) {
-      console.error("Failed to load offices", err);
-      error("Unable to fetch offices");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const loadOffices = async () => {
+      setLoading(true);
+      try {
+        const res = await getOffices();
+        setOffices(res.data);
+      } catch (err) {
+        console.error("Failed to load offices", err);
+        error("Unable to fetch offices");
+      } finally {
+        setLoading(false);
+      }
+    };
     loadOffices();
-  }, []);
+  }, [error]);
 
   const filteredData = offices.filter(
     (item) =>

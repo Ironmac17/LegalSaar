@@ -19,7 +19,6 @@ export default function KnowledgeBase() {
   });
 
   useEffect(() => {
-    setLoading(true);
     getKnowledge()
       .then((res) => setData(res.data))
       .catch((err) => console.error("Error loading knowledge:", err))

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   FiUsers,
   FiBook,
@@ -8,28 +8,29 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
+// eslint-disable-next-line no-unused-vars
+const StatCard = ({ icon: IconComponent, title, value, color, link }) => (
+  <Link
+    to={link}
+    className={`p-6 bg-white rounded-lg shadow-md border-l-4 hover:shadow-lg transition cursor-pointer ${color}`}
+  >
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-gray-600 text-sm mb-1">{title}</p>
+        <p className="text-3xl font-bold text-gray-900">{value}</p>
+      </div>
+      <IconComponent size={40} className="opacity-20" />
+    </div>
+  </Link>
+);
+
 export default function Dashboard() {
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     totalUsers: 1205,
     knowledgeEntries: 342,
     offices: 156,
     solutions: 89,
   });
-
-  const StatCard = ({ icon: Icon, title, value, color, link }) => (
-    <Link
-      to={link}
-      className={`p-6 bg-white rounded-lg shadow-md border-l-4 hover:shadow-lg transition cursor-pointer ${color}`}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
-        </div>
-        <Icon size={40} className="opacity-20" />
-      </div>
-    </Link>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">

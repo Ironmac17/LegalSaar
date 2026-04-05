@@ -1,5 +1,5 @@
 import { FiTarget, FiPlus, FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "../../hooks/useToast";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
@@ -21,13 +21,13 @@ export default function Solutions() {
     },
   ]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    steps: "",
-    category: "",
-  });
+  // const [showForm, setShowForm] = useState(false);
+  // const [editingId, setEditingId] = useState(null);
+  // const [formData, setFormData] = useState({
+  //   title: "",
+  //   steps: "",
+  //   category: "",
+  // });
 
   const filteredData = solutions.filter((item) =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -54,9 +54,10 @@ export default function Solutions() {
           </div>
           <Button
             onClick={() => {
-              setEditingId(null);
-              setFormData({ title: "", steps: "", category: "" });
-              setShowForm(true);
+              // setEditingId(null);
+              // setFormData({ title: "", steps: "", category: "" });
+              // setShowForm(true);
+              success("Add Solution dialog is not implemented yet");
             }}
             variant="accent"
             size="lg"

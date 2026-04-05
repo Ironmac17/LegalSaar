@@ -10,7 +10,6 @@ export default function Users() {
   const [filterStatus, setFilterStatus] = useState("all");
 
   useEffect(() => {
-    setLoading(true);
     getUsers()
       .then((res) => setUsers(res.data))
       .catch((err) => console.error("Error loading users:", err))

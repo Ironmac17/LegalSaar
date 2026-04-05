@@ -50,6 +50,7 @@ export default function Assistant() {
         throw new Error("Invalid upload response");
       }
     } catch (err) {
+      console.error("Upload failed", err);
       // upload error
       setMessages((prev) => [
         ...prev,
@@ -118,6 +119,7 @@ export default function Assistant() {
         audio.play();
       }
     } catch (err) {
+      console.error("Question failed", err);
       // question error
       setMessages((prev) => [
         ...prev,

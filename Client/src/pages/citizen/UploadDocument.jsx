@@ -23,7 +23,6 @@ export default function UploadDocument() {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [uploadedDocId, setUploadedDocId] = useState(null);
   const [error, setError] = useState("");
 
   const validateFile = (f) => {
@@ -74,9 +73,8 @@ export default function UploadDocument() {
       const form = new FormData();
       form.append("file", file);
 
-      const res = await api.post("/documents/upload", form);
+      await api.post("/documents/upload", form);
       setUploadSuccess(true);
-      setUploadedDocId(res.data.documentId);
       setFile(null);
     } catch (err) {
       setError(
@@ -108,7 +106,6 @@ export default function UploadDocument() {
             <button
               onClick={() => {
                 setUploadSuccess(false);
-                setUploadedDocId(null);
               }}
               className="block w-full bg-gray-200 text-gray-900 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
             >

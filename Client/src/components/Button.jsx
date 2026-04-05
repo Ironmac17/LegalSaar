@@ -4,6 +4,7 @@ export default function Button({
   size = "md",
   loading = false,
   disabled = false,
+  // eslint-disable-next-line no-unused-vars
   as: Component = "button",
   ...props
 }) {

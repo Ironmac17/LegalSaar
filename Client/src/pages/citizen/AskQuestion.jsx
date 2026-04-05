@@ -14,7 +14,6 @@ import { t } from "../../utils/i18n";
 export default function AskQuestion() {
   const { language } = useContext(AuthContext);
   const [searchType, setSearchType] = useState("text"); // text or voice
-  const [searchQuery, setSearchQuery] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -94,7 +93,6 @@ export default function AskQuestion() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <ChatInput
                 onSend={(query) => {
-                  setSearchQuery(query);
                   handleSearch(query);
                 }}
                 placeholder={t("placeholder", language)}

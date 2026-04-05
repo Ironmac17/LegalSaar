@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext } from "react";
 import api from "../../api/api";
 import { FiSearch, FiBook, FiClock } from "react-icons/fi";
 import Loader from "../../components/Loader";
@@ -93,8 +93,6 @@ export default function LegalInfo() {
   const [translatedResult, setTranslatedResult] = useState(null);
   const [translating, setTranslating] = useState(false);
   const { language } = useContext(AuthContext);
-  const speechRef = useRef(null);
-
   // Stop speech when component unmounts or language changes
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -115,6 +113,34 @@ export default function LegalInfo() {
 
   // Translate selected result when language changes
   useEffect(() => {
+    const translateSelectedResult = async () => {
+      if (!selectedResult || language === "en") return;
+
+      setTranslating(true);
+      try {
+        const titleToTranslate = selectedResult.title;
+        const contentToTranslate = selectedResult.type === "judgment"
+          ? selectedResult.content.replace(/<[^>]*>/g, '') // Strip HTML for translation
+          : selectedResult.content;
+
+        const [translatedTitle, translatedContent] = await Promise.all([
+          translateText(titleToTranslate, language),
+          translateText(contentToTranslate, language)
+        ]);
+
+        setTranslatedResult({
+          ...selectedResult,
+          title: translatedTitle,
+          content: translatedContent
+        });
+      } catch (error) {
+        console.error("Translation failed:", error);
+        setTranslatedResult(null);
+      } finally {
+        setTranslating(false);
+      }
+    };
+
     if (selectedResult && language !== "en") {
       translateSelectedResult();
     } else if (selectedResult && language === "en") {
@@ -122,39 +148,22 @@ export default function LegalInfo() {
     }
   }, [language, selectedResult]);
 
-  const translateSelectedResult = async () => {
-    if (!selectedResult || language === "en") return;
-
-    setTranslating(true);
-    try {
-      const titleToTranslate = selectedResult.title;
-      const contentToTranslate = selectedResult.type === "judgment"
-        ? selectedResult.content.replace(/<[^>]*>/g, '') // Strip HTML for translation
-        : selectedResult.content;
-
-      const [translatedTitle, translatedContent] = await Promise.all([
-        translateText(titleToTranslate, language),
-        translateText(contentToTranslate, language)
-      ]);
-
-      setTranslatedResult({
-        ...selectedResult,
-        title: translatedTitle,
-        content: translatedContent
-      });
-    } catch (error) {
-      console.error("Translation failed:", error);
-      setTranslatedResult(null);
-    } finally {
-      setTranslating(false);
-    }
-  };
-
   const getTranslatedText = (text, translations) => {
     if (language === "en" || !translations[language]) {
       return text;
     }
     return translations[language];
+  };
+
+  const getTranslatedCategory = (cat) => {
+    if (language === "en" || !CATEGORY_TRANSLATIONS[cat] || !CATEGORY_TRANSLATIONS[cat][language]) {
+      return cat;
+    }
+    return CATEGORY_TRANSLATIONS[cat][language];
+  };
+
+  const getDisplayResult = () => {
+    return translatedResult || selectedResult || {};
   };
 
   const headerTranslations = {

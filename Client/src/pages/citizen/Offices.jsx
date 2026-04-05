@@ -19,18 +19,6 @@ export default function Offices() {
   const [selectedType, setSelectedType] = useState("All");
   const [searchCity, setSearchCity] = useState("");
 
-  useEffect(() => {
-    setLoading(true);
-    api
-      .get("/offices")
-      .then((res) => {
-        setOffices(res.data);
-        applyFilters(res.data, "All", "");
-      })
-      .catch((err) => console.error("Error fetching offices:", err))
-      .finally(() => setLoading(false));
-  }, []);
-
   const applyFilters = (data, type, city) => {
     let filtered = data;
 
@@ -46,6 +34,17 @@ export default function Offices() {
 
     setFilteredOffices(filtered);
   };
+
+  useEffect(() => {
+    api
+      .get("/offices")
+      .then((res) => {
+        setOffices(res.data);
+        applyFilters(res.data, "All", "");
+      })
+      .catch((err) => console.error("Error fetching offices:", err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleTypeFilter = (type) => {
     setSelectedType(type);
