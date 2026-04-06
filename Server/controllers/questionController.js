@@ -1,6 +1,9 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
+// Simple in-memory cache to make repeated identical queries instant
+const questionCache = new Map();
+
 const askQuestionController = async (req, res, next) => {
   try {
     const { question, documentId } = req.body;
@@ -8,6 +11,12 @@ const askQuestionController = async (req, res, next) => {
 
     if (!question) {
       return res.status(400).json({ message: "Question is required" });
+    }
+
+    const cacheKey = `${question.trim().toLowerCase()}_${lang || 'en'}_${documentId || 'none'}`;
+    if (questionCache.has(cacheKey)) {
+      console.log(`Cache HIT for: ${question}`);
+      return res.json(questionCache.get(cacheKey));
     }
 
     let clauses = [];
@@ -58,6 +67,13 @@ const askQuestionController = async (req, res, next) => {
         if (!result.explanation && result.answer) {
           result.explanation = result.answer;
         }
+
+        // Save to cache (limit size to prevent memory leaks)
+        if (questionCache.size > 200) {
+            const firstKey = questionCache.keys().next().value;
+            questionCache.delete(firstKey);
+        }
+        questionCache.set(cacheKey, result);
 
         res.json(result);
       } catch (parseError) {

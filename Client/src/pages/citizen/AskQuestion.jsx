@@ -16,7 +16,15 @@ export default function AskQuestion() {
   const [searchType, setSearchType] = useState("text"); // text or voice
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState("");
+
+  const loadingMessages = [
+    "Connecting to Legal Database...",
+    "Scanning Law Precedents...",
+    "Analyzing Query Context...",
+    "Synthesizing Response..."
+  ];
 
   const handleSearch = async (query) => {
     if (!query.trim()) {
@@ -25,7 +33,13 @@ export default function AskQuestion() {
     }
 
     setLoading(true);
+    setLoadingStep(0);
     setError("");
+
+    const intervalId = setInterval(() => {
+      setLoadingStep((prev) => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
+    }, 2500);
+
     try {
       // Updated for FAISS + FLAN-T5 (no prompt-based payload)
       const res = await api.post(`/questions/ask?lang=${language}`, {
@@ -39,6 +53,7 @@ export default function AskQuestion() {
     } catch (err) {
       setError(err.response?.data?.message || "Failed to get answer");
     } finally {
+      clearInterval(intervalId);
       setLoading(false);
     }
   };
@@ -115,8 +130,9 @@ export default function AskQuestion() {
 
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-12">
-            <Loader text={t("findingAnswer", language)} />
+          <div className="text-center py-12 transition-all duration-500">
+            <Loader text={loadingMessages[loadingStep]} />
+            <p className="text-sm text-gray-400 mt-4 animate-pulse">This AI search processes vast legal records and takes a few seconds.</p>
           </div>
         )}
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import api from "../../api/api";
-import { FiSearch, FiBook, FiClock } from "react-icons/fi";
+import { FiSearch, FiBook, FiClock, FiPhoneCall, FiAlertCircle, FiShield } from "react-icons/fi";
 import Loader from "../../components/Loader";
 import ChatInput from "../../components/ChatInput";
 import SpeakButton from "../../components/SpeakButton";
@@ -329,6 +329,34 @@ export default function LegalInfo() {
         {/* Categories */}
         {results.length === 0 && !loading && (
           <div className="mb-12">
+            
+            {/* Quick Actions Highlight */}
+            <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg mb-8 shadow-sm">
+              <h2 className="text-xl font-bold text-red-900 mb-4 flex items-center gap-2">
+                <FiAlertCircle /> Immediate Legal Assistance
+              </h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                <a href="tel:15100" className="flex items-center gap-3 bg-white p-4 rounded shadow-sm hover:shadow transition border border-red-100">
+                  <div className="bg-red-100 p-3 rounded-full text-red-600">
+                    <FiPhoneCall size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">National Legal Aid</h3>
+                    <p className="text-sm text-gray-600">Call 15100 for immediate advice</p>
+                  </div>
+                </a>
+                <a href="/citizen/offices" className="flex items-center gap-3 bg-white p-4 rounded shadow-sm hover:shadow transition border border-red-100">
+                  <div className="bg-red-100 p-3 rounded-full text-red-600">
+                    <FiShield size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">Find Police Station</h3>
+                    <p className="text-sm text-gray-600">Locate nearest law enforcement</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+
             <h2 className="text-xl font-bold text-gray-900 mb-6">
               {getTranslatedText("Browse by Category", headerTranslations.browseTitle)}
             </h2>

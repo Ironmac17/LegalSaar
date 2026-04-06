@@ -23,7 +23,7 @@ export default function Offices() {
     let filtered = data;
 
     if (type !== "All") {
-      filtered = filtered.filter((o) => o.type === type);
+      filtered = filtered.filter((o) => o.department === type);
     }
 
     if (city) {
@@ -154,7 +154,7 @@ export default function Offices() {
                           {office.name}
                         </h3>
                         <span className="inline-block mt-2 bg-primary-100 text-primary-700 px-3 py-1 rounded text-sm font-semibold">
-                          {office.type || "Government Office"}
+                          {office.department || "Government Office"}
                         </span>
                       </div>
                     </div>
@@ -177,7 +177,7 @@ export default function Offices() {
                       </div>
 
                       {/* Phone */}
-                      {office.phone && (
+                      {office.contactNumber && (
                         <div className="flex items-start gap-3">
                           <FiPhone
                             className="text-success-600 flex-shrink-0 mt-1"
@@ -186,17 +186,17 @@ export default function Offices() {
                           <div>
                             <p className="text-gray-600 text-sm">Contact</p>
                             <a
-                              href={`tel:${office.phone}`}
+                              href={`tel:${office.contactNumber}`}
                               className="text-primary-600 hover:text-primary-700 font-medium"
                             >
-                              {office.phone}
+                              {office.contactNumber}
                             </a>
                           </div>
                         </div>
                       )}
 
                       {/* Timing */}
-                      {office.timings && (
+                      {office.workingHours && (
                         <div className="flex items-start gap-3">
                           <FiClock
                             className="text-warning-600 flex-shrink-0 mt-1"
@@ -207,7 +207,7 @@ export default function Offices() {
                               Working Hours
                             </p>
                             <p className="text-gray-900 font-medium">
-                              {office.timings}
+                              {office.workingHours}
                             </p>
                           </div>
                         </div>
@@ -229,20 +229,51 @@ export default function Offices() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                <FiMapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-600 text-lg">
-                  No offices found matching your criteria
-                </p>
-                <button
-                  onClick={() => {
-                    handleTypeFilter("All");
-                    handleCitySearch("");
-                  }}
-                  className="mt-4 text-primary-600 hover:text-primary-700 font-semibold"
-                >
-                  Clear Filters
-                </button>
+              <div className="space-y-8">
+                <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                  <FiMapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-600 text-lg">
+                    No offices found matching your criteria
+                  </p>
+                  <button
+                    onClick={() => {
+                      handleTypeFilter("All");
+                      handleCitySearch("");
+                    }}
+                    className="mt-4 text-primary-600 hover:text-primary-700 font-semibold"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+
+                <div className="bg-danger-50 border border-danger-200 rounded-lg p-6">
+                  <h3 className="text-xl font-bold text-danger-900 mb-4 flex items-center gap-2">
+                    <FiPhone className="text-danger-600" />
+                    Important National Emergency Contacts
+                  </h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="bg-white p-4 rounded shadow-sm border border-danger-100 flex justify-between items-center">
+                      <span className="font-semibold text-gray-800">Police</span>
+                      <a href="tel:100" className="bg-danger-600 text-white px-3 py-1 rounded font-bold hover:bg-danger-700">100</a>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow-sm border border-danger-100 flex justify-between items-center">
+                      <span className="font-semibold text-gray-800">Women Helpline</span>
+                      <a href="tel:1091" className="bg-danger-600 text-white px-3 py-1 rounded font-bold hover:bg-danger-700">1091</a>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow-sm border border-danger-100 flex justify-between items-center">
+                      <span className="font-semibold text-gray-800">Legal Aid Service</span>
+                      <a href="tel:15100" className="bg-danger-600 text-white px-3 py-1 rounded font-bold hover:bg-danger-700">15100</a>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow-sm border border-danger-100 flex justify-between items-center">
+                      <span className="font-semibold text-gray-800">Child Helpline</span>
+                      <a href="tel:1098" className="bg-danger-600 text-white px-3 py-1 rounded font-bold hover:bg-danger-700">1098</a>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow-sm border border-danger-100 flex justify-between items-center">
+                      <span className="font-semibold text-gray-800">Ambulance</span>
+                      <a href="tel:108" className="bg-danger-600 text-white px-3 py-1 rounded font-bold hover:bg-danger-700">108</a>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </>

@@ -21,8 +21,11 @@ export default function AdminOffices() {
     name: "",
     address: "",
     city: "",
-    type: "",
-    phone: "",
+    state: "",
+    department: "",
+    purpose: "",
+    contactNumber: "",
+    workingHours: "",
   });
 
   useEffect(() => {
@@ -78,8 +81,11 @@ export default function AdminOffices() {
                 name: "",
                 address: "",
                 city: "",
-                type: "",
-                phone: "",
+                state: "",
+                department: "",
+                purpose: "",
+                contactNumber: "",
+                workingHours: "",
               });
               setShowForm(true);
             }}
@@ -175,19 +181,49 @@ export default function AdminOffices() {
                   />
                   <input
                     type="text"
-                    placeholder="Type (e.g. Police, Court)"
-                    value={formData.type}
+                    placeholder="State"
+                    value={formData.state}
                     onChange={(e) =>
-                      setFormData({ ...formData, type: e.target.value })
+                      setFormData({ ...formData, state: e.target.value })
+                    }
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Department (e.g. Police, Court)"
+                    value={formData.department}
+                    onChange={(e) =>
+                      setFormData({ ...formData, department: e.target.value })
+                    }
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Purpose (e.g. Criminal, Civil)"
+                    value={formData.purpose}
+                    onChange={(e) =>
+                      setFormData({ ...formData, purpose: e.target.value })
+                    }
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Contact Number"
+                    value={formData.contactNumber}
+                    onChange={(e) =>
+                      setFormData({ ...formData, contactNumber: e.target.value })
                     }
                     className="w-full border border-gray-300 px-4 py-2 rounded-lg"
                   />
                   <input
                     type="text"
-                    placeholder="Phone"
-                    value={formData.phone}
+                    placeholder="Working Hours"
+                    value={formData.workingHours}
                     onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
+                      setFormData({ ...formData, workingHours: e.target.value })
                     }
                     className="w-full border border-gray-300 px-4 py-2 rounded-lg"
                   />
@@ -217,7 +253,7 @@ export default function AdminOffices() {
                       {office.name}
                     </h3>
                     <span className="inline-block mt-2 bg-success-100 text-success-700 px-3 py-1 rounded text-sm font-semibold">
-                      {office.type}
+                      {office.department}
                     </span>
                   </div>
                   <div className="flex gap-2">
@@ -234,8 +270,8 @@ export default function AdminOffices() {
                 </div>
                 <p className="text-gray-600 mb-2">{office.address}</p>
                 <p className="text-gray-600 mb-2">{office.city}</p>
-                {office.phone && (
-                  <p className="text-primary-600 font-medium">{office.phone}</p>
+                {office.contactNumber && (
+                  <p className="text-primary-600 font-medium">{office.contactNumber}</p>
                 )}
               </div>
             ))}
