@@ -16,69 +16,84 @@ const sendOtpController = async (req, res, next) => {
   try {
     const { phone } = req.body;
 
-    // Validate phone
     const phoneValidation = validatePhone(phone);
     if (!phoneValidation.valid) {
       throw new ValidationError(phoneValidation.error);
     }
 
-    // Check if user exists
     const existingUser = await User.findOne({ phone });
     if (existingUser && !existingUser.isActive) {
       throw new AuthenticationError("User account is deactivated");
     }
 
-    // Send OTP
-    const sent = await sendOTP(phone);
-    if (!sent) {
+    const otpCode = await sendOTP(phone);
+    if (!otpCode) {
       throw new Error("Failed to send OTP");
     }
 
     res.json({
       success: true,
       message: "OTP sent successfully",
-      phone: phone.substring(phone.length - 2) === "**" ? phone : phone.slice(0, -2) + "**"
+      phone: phone,
+      otpCode: otpCode, // For demo purposes
     });
   } catch (error) {
     next(error);
   }
 };
 
-const verifyOtpController = async (req, res, next) => {
+const registerController = async (req, res, next) => {
   try {
-    const { phone, otp } = req.body;
+    const { name, phone, password } = req.body;
 
-    // Validate inputs
     const phoneValidation = validatePhone(phone);
-    if (!phoneValidation.valid) {
-      throw new ValidationError(phoneValidation.error);
-    }
+    if (!phoneValidation.valid) throw new ValidationError(phoneValidation.error);
+    if (!name) throw new ValidationError("Name is required");
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) throw new ValidationError(passwordValidation.error);
 
-    const otpValidation = validateOTP(otp);
-    if (!otpValidation.valid) {
-      throw new ValidationError(otpValidation.error);
-    }
-
-    // Verify OTP
-    const isValid = verifyOTP(phone, otp);
-    if (!isValid) {
-      throw new AuthenticationError("Invalid or expired OTP");
-    }
-
-    // Find or create user
     let user = await User.findOne({ phone });
-
-    if (!user) {
-      user = await User.create({
-        phone,
-        role: "citizen",
-        isActive: true,
-      });
-    } else if (!user.isActive) {
-      throw new AuthenticationError("User account is deactivated");
+    if (user) {
+      throw new ValidationError("User already exists with this phone number");
     }
 
-    // Generate JWT token
+    user = await User.create({
+      name,
+      phone,
+      password,
+      role: "citizen",
+      isActive: true,
+      isVerified: false,
+    });
+
+    const otpCode = await sendOTP(phone);
+
+    res.json({
+      success: true,
+      message: "User created. OTP sent.",
+      phone: phone,
+      otpCode: otpCode, // Demo
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const loginPasswordController = async (req, res, next) => {
+  try {
+    const { phone, password } = req.body;
+
+    const phoneValidation = validatePhone(phone);
+    if (!phoneValidation.valid) throw new ValidationError(phoneValidation.error);
+
+    const user = await User.findOne({ phone, role: "citizen" });
+    if (!user) throw new AuthenticationError("Invalid phone or password");
+    if (!user.isActive) throw new AuthenticationError("Account deactivated");
+    if (!user.isVerified) throw new AuthenticationError("Please verify your OTP first");
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) throw new AuthenticationError("Invalid phone or password");
+
     const JWT_SECRET = process.env.JWT_SECRET || "dev_jwt_secret";
     const token = jwt.sign(
       { id: user._id, phone: user.phone, role: user.role },
@@ -92,6 +107,50 @@ const verifyOtpController = async (req, res, next) => {
       user: {
         id: user._id,
         phone: user.phone,
+        name: user.name,
+        role: user.role,
+        language: user.language,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const verifyOtpController = async (req, res, next) => {
+  try {
+    const { phone, otp } = req.body;
+
+    const phoneValidation = validatePhone(phone);
+    if (!phoneValidation.valid) throw new ValidationError(phoneValidation.error);
+    const otpValidation = validateOTP(otp);
+    if (!otpValidation.valid) throw new ValidationError(otpValidation.error);
+
+    const isValid = verifyOTP(phone, otp);
+    if (!isValid) throw new AuthenticationError("Invalid or expired OTP");
+
+    let user = await User.findOne({ phone });
+    if (!user) throw new AuthenticationError("User not found, please register.");
+    if (!user.isActive) throw new AuthenticationError("User account is deactivated");
+
+    // Mark verified
+    user.isVerified = true;
+    await user.save();
+
+    const JWT_SECRET = process.env.JWT_SECRET || "dev_jwt_secret";
+    const token = jwt.sign(
+      { id: user._id, phone: user.phone, role: user.role },
+      JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        phone: user.phone,
+        name: user.name,
         role: user.role,
         language: user.language,
       },
@@ -103,16 +162,10 @@ const verifyOtpController = async (req, res, next) => {
 
 const getCurrentUserController = async (req, res, next) => {
   try {
-    // User is attached to request by authMiddleware
-    const user = await User.findById(req.user.id).select("-password -otp -otpExpiry");
+    const user = await User.findById(req.user.id).select("-password");
 
-    if (!user) {
-      throw new AuthenticationError("User not found");
-    }
-
-    if (!user.isActive) {
-      throw new AuthenticationError("User account is deactivated");
-    }
+    if (!user) throw new AuthenticationError("User not found");
+    if (!user.isActive) throw new AuthenticationError("User account is deactivated");
 
     res.json({
       success: true,
@@ -134,38 +187,22 @@ const adminLoginController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Validate inputs
     const emailValidation = validateEmail(email);
-    if (!emailValidation.valid) {
-      throw new ValidationError(emailValidation.error);
-    }
-
+    if (!emailValidation.valid) throw new ValidationError(emailValidation.error);
     const passwordValidation = validatePassword(password);
-    if (!passwordValidation.valid) {
-      throw new ValidationError(passwordValidation.error);
-    }
+    if (!passwordValidation.valid) throw new ValidationError(passwordValidation.error);
 
-    // Find admin user
     const admin = await User.findOne({
       email: emailValidation.value,
       role: { $in: ["admin", "super_admin"] },
     });
 
-    if (!admin) {
-      throw new AuthenticationError("Invalid credentials");
-    }
+    if (!admin) throw new AuthenticationError("Invalid credentials");
+    if (!admin.isActive) throw new AuthenticationError("Admin account is deactivated");
 
-    if (!admin.isActive) {
-      throw new AuthenticationError("Admin account is deactivated");
-    }
-
-    // Verify password (assuming bcrypt is used in model)
     const isPasswordValid = await admin.comparePassword(password);
-    if (!isPasswordValid) {
-      throw new AuthenticationError("Invalid credentials");
-    }
+    if (!isPasswordValid) throw new AuthenticationError("Invalid credentials");
 
-    // Generate JWT token
     const JWT_SECRET = process.env.JWT_SECRET || "dev_jwt_secret";
     const token = jwt.sign(
       { id: admin._id, email: admin.email, role: admin.role },
@@ -187,4 +224,11 @@ const adminLoginController = async (req, res, next) => {
   }
 };
 
-module.exports = { sendOtpController, verifyOtpController, adminLoginController, getCurrentUserController };
+module.exports = { 
+  sendOtpController, 
+  verifyOtpController, 
+  adminLoginController, 
+  getCurrentUserController,
+  registerController,
+  loginPasswordController
+};

@@ -1,27 +1,38 @@
-import { useState, useContext } from "react";
-import api from "../../api/api";
+import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../../auth/AuthContext";
 import { useToast } from "../../hooks/useToast";
 import { useNavigate } from "react-router-dom";
-import { FiPhone, FiShield, FiAlertCircle, FiArrowLeft } from "react-icons/fi";
+import { FiPhone, FiLock, FiUser, FiShield, FiAlertCircle, FiArrowLeft, FiCheckCircle } from "react-icons/fi";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
 
 export default function Login() {
+  const [tab, setTab] = useState("login"); // login | signup
+  const [loginMethod, setLoginMethod] = useState("password"); // password | otp
+  const [step, setStep] = useState("form"); // form | otp_verify
+  
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState("phone");
+  
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(0);
+  const [demoOtpCode, setDemoOtpCode] = useState(null); // For showcasing OTP
 
-  const { setUser } = useContext(AuthContext);
+  const { loginPassword, register, sendOtp, verifyOtp } = useContext(AuthContext);
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
 
   const validatePhone = (p) => /^[0-9]{10}$/.test(p);
 
-  const sendOtp = async () => {
+  // Clear states when toggling tabs
+  useEffect(() => {
+    setError("");
+    setDemoOtpCode(null);
+  }, [tab, loginMethod, step]);
+
+  const handleAction = async () => {
     if (!validatePhone(phone)) {
       setError("Please enter a valid 10-digit phone number");
       return;
@@ -29,22 +40,33 @@ export default function Login() {
 
     setLoading(true);
     setError("");
+    
     try {
-      await api.post("/auth/send-otp", { phone });
-      setStep("otp");
-      setTimer(60);
-      success("OTP sent successfully!");
-      const interval = setInterval(() => {
-        setTimer((t) => {
-          if (t <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return t - 1;
-        });
-      }, 1000);
+      if (tab === "signup") {
+        if (!name || !password) {
+          throw new Error("Name and password are required");
+        }
+        const res = await register(name, phone, password);
+        setDemoOtpCode(res.otpCode); // Show demo code
+        setOtp(res.otpCode); // Auto-fill it on screen
+        success("Registration started! Please verify OTP.");
+        setStep("otp_verify");
+      } 
+      else if (tab === "login" && loginMethod === "password") {
+        if (!password) throw new Error("Password is required");
+        await loginPassword(phone, password);
+        success("Login successful! Redirecting...");
+        navigate("/home");
+      } 
+      else if (tab === "login" && loginMethod === "otp") {
+        const res = await sendOtp(phone);
+        setDemoOtpCode(res.otpCode);
+        setOtp(res.otpCode); // Auto-fill it on screen
+        success("OTP sent to your phone!");
+        setStep("otp_verify");
+      }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || "Failed to send OTP";
+      const errorMsg = err.response?.data?.message || err.message || "Action failed";
       setError(errorMsg);
       showError(errorMsg);
     } finally {
@@ -52,7 +74,7 @@ export default function Login() {
     }
   };
 
-  const verifyOtp = async () => {
+  const handleVerifyOtp = async () => {
     if (otp.length !== 6) {
       setError("Please enter a valid 6-digit OTP");
       return;
@@ -61,14 +83,11 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const res = await api.post("/auth/verify-otp", { phone, otp });
-      localStorage.setItem("token", res.data.token);
-      setUser(res.data.user);
-      success("Login successful! Redirecting...");
-      setTimeout(() => navigate("/home"), 1000);
+      await verifyOtp(phone, otp);
+      success("Verification successful! Redirecting...");
+      navigate("/home");
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.message || "Invalid OTP. Please try again.";
+      const errorMsg = err.response?.data?.message || "Invalid OTP. Please try again.";
       setError(errorMsg);
       showError(errorMsg);
     } finally {
@@ -76,190 +95,202 @@ export default function Login() {
     }
   };
 
-  const handleKeyPress = (e, callback) => {
-    if (e.key === "Enter" && !loading) {
-      callback();
-    }
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 relative overflow-hidden px-4">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-accent-500 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-accent-500 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden px-4 font-sans">
+      
+      {/* Decorative Elements */}
+      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-secondary-100 rounded-bl-full opacity-50 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-primary-100 rounded-tr-full opacity-50 pointer-events-none"></div>
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border-2 border-accent-500">
+      <div className="w-full max-w-lg relative z-10">
+        <div className="bg-surface rounded-lg shadow-card p-10 border border-gray-100">
+          
           {/* Back Button */}
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-accent-600 hover:text-accent-700 font-semibold mb-6 transition-colors"
+            className="flex items-center gap-2 text-text-light hover:text-primary font-semibold mb-6 transition-colors text-sm"
           >
-            <FiArrowLeft size={20} />
+            <FiArrowLeft size={16} />
             Back to Home
           </button>
 
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="bg-gradient-to-br from-primary-900 to-primary-800 p-3 rounded-full">
-                <FiShield className="text-accent-500 w-8 h-8" />
+            <div className="inline-flex items-center justify-center gap-3 mb-2">
+              <div className="bg-primary p-3 rounded-full shadow-lg">
+                <FiShield className="text-secondary w-6 h-6" />
               </div>
-              <h1 className="text-4xl font-bold text-primary-900">LegalSaas</h1>
+              <h1 className="text-3xl font-serif font-bold tracking-wide text-primary">LegalSaas</h1>
             </div>
-            <p className="text-gray-700 font-semibold">Secure Citizen Login</p>
+            <p className="text-text-light font-medium mt-2">
+              {step === "otp_verify" 
+                ? "Verify your identity" 
+                : tab === "login" ? "Secure Portal Login" : "Create your Account"}
+            </p>
           </div>
 
-          {/* Error Message */}
+          {/* Error Banner */}
           {error && (
-            <div className="mb-6 p-4 bg-danger-50 border-l-4 border-danger-600 rounded-lg flex gap-3 items-start">
-              <FiAlertCircle
-                className="text-danger-600 flex-shrink-0 mt-1"
-                size={20}
-              />
-              <p className="text-danger-700 text-sm font-medium">{error}</p>
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded flex gap-3 items-start animate-pulse">
+              <FiAlertCircle className="text-red-500 mt-1" size={18} />
+              <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
 
-          {/* Phone Step */}
-          {step === "phone" && (
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-bold text-primary-900 mb-3">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <FiPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-accent-600 w-5 h-5" />
-                  <input
-                    type="tel"
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-lg font-semibold"
-                    placeholder="Enter 10-digit number"
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(
-                        e.target.value.replace(/[^0-9]/g, "").slice(0, 10),
-                      );
-                      setError("");
-                    }}
-                    onKeyPress={(e) => handleKeyPress(e, sendOtp)}
-                    maxLength="10"
-                    disabled={loading}
-                  />
-                </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  📱 We will send you a 6-digit OTP to verify your identity
-                </p>
+          {/* Demo OTP Banner if any */}
+          {demoOtpCode && step === "otp_verify" && (
+            <div className="mb-6 p-4 bg-secondary-50 border border-secondary-200 rounded flex gap-3 items-center">
+              <FiCheckCircle className="text-secondary-600" size={20} />
+              <p className="text-secondary-800 text-sm">
+                <strong>Demo OTP:</strong> {demoOtpCode} (Expires in 2 mins)
+              </p>
+            </div>
+          )}
+
+          {step === "form" ? (
+            <div className="space-y-6">
+              
+              {/* Tab Selector */}
+              <div className="flex border-b border-gray-200 mb-6 font-medium text-sm">
+                <button 
+                  className={`flex-1 pb-3 text-center transition-colors ${tab === "login" ? "border-b-2 border-primary text-primary" : "text-text-light hover:text-primary"}`}
+                  onClick={() => setTab("login")}
+                >
+                  Sign In
+                </button>
+                <button 
+                  className={`flex-1 pb-3 text-center transition-colors ${tab === "signup" ? "border-b-2 border-primary text-primary" : "text-text-light hover:text-primary"}`}
+                  onClick={() => setTab("signup")}
+                >
+                  Register
+                </button>
               </div>
 
+              {tab === "signup" && (
+                <div>
+                  <label className="block text-xs font-bold text-text-light uppercase tracking-wider mb-2">Full Name</label>
+                  <div className="relative">
+                    <FiUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded shadow-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-text"
+                      placeholder="John Doe"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-text-light uppercase tracking-wider mb-2">Phone Number</label>
+                <div className="relative">
+                  <FiPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="tel"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded shadow-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-text"
+                    placeholder="10-digit number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
+                    maxLength="10"
+                  />
+                </div>
+              </div>
+
+              {(tab === "signup" || (tab === "login" && loginMethod === "password")) && (
+                <div>
+                  <label className="block text-xs font-bold text-text-light uppercase tracking-wider mb-2">Password</label>
+                  <div className="relative">
+                    <FiLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="password"
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded shadow-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-text"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Toggle Login Method for Login Page */}
+              {tab === "login" && (
+                <div className="flex justify-end">
+                  <button 
+                    onClick={() => setLoginMethod(prev => prev === 'password' ? 'otp' : 'password')}
+                    className="text-xs font-bold text-secondary-600 hover:text-secondary-700 transition"
+                  >
+                    {loginMethod === "password" ? "Login with OTP instead" : "Login with Password instead"}
+                  </button>
+                </div>
+              )}
+
               <Button
-                onClick={sendOtp}
+                onClick={handleAction}
                 loading={loading}
-                disabled={!validatePhone(phone)}
                 variant="primary"
                 size="lg"
-                className="w-full bg-gradient-to-r from-primary-900 to-primary-800 hover:from-primary-800 hover:to-primary-700 text-white font-bold"
+                className="w-full bg-primary hover:bg-primary-800 text-surface shadow-md py-4 rounded transition-all tracking-wide"
               >
-                {loading ? "Sending..." : "Send OTP"}
+                {loading ? "Processing..." : (tab === "login" ? "Sign In" : "Create Account (Next step: OTP)")}
               </Button>
-            </div>
-          )}
 
-          {/* OTP Step */}
-          {step === "otp" && (
-            <div className="space-y-5">
+            </div>
+          ) : (
+            // OTP verification step
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-primary-900 mb-3">
-                  Enter OTP
+                <label className="block text-sm font-bold text-primary mb-3 text-center">
+                  Verification Code
                 </label>
-                <p className="text-gray-700 text-sm font-medium mb-4">
-                  ✓ OTP sent to{" "}
-                  <span className="text-accent-600 font-bold">+91 {phone}</span>
+                <p className="text-text-light text-sm mb-6 text-center">
+                  Enter the 6-digit code sent to <span className="font-bold">+91 {phone}</span>
                 </p>
                 <input
                   type="text"
-                  className="w-full px-4 py-4 border-2 border-accent-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-600 text-center text-4xl tracking-widest font-bold text-primary-900"
-                  placeholder="000000"
+                  className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:border-primary focus:ring-primary text-center text-3xl tracking-[0.5em] font-medium text-primary shadow-inner"
+                  placeholder="------"
                   value={otp}
-                  onChange={(e) => {
-                    setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6));
-                    setError("");
-                  }}
-                  onKeyPress={(e) => handleKeyPress(e, verifyOtp)}
+                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                   maxLength="6"
-                  disabled={loading}
                 />
               </div>
 
               <Button
-                onClick={verifyOtp}
+                onClick={handleVerifyOtp}
                 loading={loading}
                 disabled={otp.length !== 6}
                 variant="primary"
                 size="lg"
-                className="w-full bg-gradient-to-r from-primary-900 to-primary-800 hover:from-primary-800 hover:to-primary-700 text-white font-bold"
+                className="w-full bg-primary hover:bg-primary-800 text-surface shadow-md py-4 rounded transition-all tracking-wide"
               >
-                {loading ? "Verifying..." : "Verify OTP"}
+                {loading ? "Verifying..." : "Verify & Continue"}
               </Button>
 
-              <button
-                onClick={() => {
-                  setStep("phone");
-                  setOtp("");
-                  setError("");
-                  setTimer(0);
-                }}
-                className="w-full text-accent-600 hover:text-accent-700 font-bold py-2 transition-colors"
-                disabled={loading}
-              >
-                Change Phone Number
-              </button>
-
-              {timer > 0 ? (
-                <p className="text-center text-gray-600 text-sm font-medium">
-                  ⏱️ Resend OTP in{" "}
-                  <span className="text-accent-600 font-bold">{timer}s</span>
-                </p>
-              ) : (
+              <div className="text-center">
                 <button
-                  onClick={sendOtp}
-                  className="w-full text-accent-600 hover:text-accent-700 font-bold py-2 transition-colors"
-                  disabled={loading}
+                  onClick={() => {
+                    setStep("form");
+                    setOtp("");
+                    setDemoOtpCode(null);
+                  }}
+                  className="text-text-light hover:text-primary text-sm font-semibold transition"
                 >
-                  Resend OTP
+                  Back to {tab === "signup" ? "Registration" : "Login"}
                 </button>
-              )}
+              </div>
             </div>
           )}
 
-          {/* Loading State */}
-          {loading && (
-            <div className="flex justify-center py-8">
-              <Loader />
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-            <p className="text-gray-600 text-xs">
-              By logging in, you agree to our{" "}
-              <a
-                href="#"
-                className="text-accent-600 font-bold hover:text-accent-700"
-              >
-                Terms
-              </a>{" "}
-              and{" "}
-              <a
-                href="#"
-                className="text-accent-600 font-bold hover:text-accent-700"
-              >
-                Privacy Policy
-              </a>
-            </p>
-          </div>
         </div>
+        
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-text-light text-xs font-medium">
+            By proceeding, you agree to the <a href="#" className="underline hover:text-primary">Terms of Service</a> & <a href="#" className="underline hover:text-primary">Privacy Policy</a>
+          </p>
+        </div>
+
       </div>
     </div>
   );

@@ -40,19 +40,22 @@ const errorMiddleware = (err, req, res, next) => {
     isOperational = true;
   }
 
-  // Handle MongoDB validation errors
+  // Handle MongoDB validation errors and custom ValidationErrors
   if (err.name === "ValidationError") {
     statusCode = 400;
-    message = "Validation Error";
+    message = err.message || "Validation Error";
     isOperational = true;
-    const errors = Object.values(err.errors).map((error) => ({
-      field: error.path,
-      message: error.message,
-    }));
+    let errors = [];
+    if (err.errors) {
+      errors = Object.values(err.errors).map((error) => ({
+        field: error.path,
+        message: error.message,
+      }));
+    }
     return res.status(statusCode).json({
       success: false,
       message,
-      errors,
+      errors: errors.length ? errors : undefined,
     });
   }
 
